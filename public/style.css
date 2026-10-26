@@ -552,3 +552,28 @@ html.reduce { scroll-behavior: auto; }
   .truck .flow.is-flow { animation: none; }
   .truck .spin { animation: none; }
 }
+
+/* ---------- thermal demo ---------- */
+.th-ctrl { display: flex; flex-wrap: wrap; gap: 14px 22px; align-items: flex-end; margin: 22px 0; }
+.th-group { border: 0; padding: 0; margin: 0; display: flex; gap: 0; flex-wrap: wrap; }
+.th-group legend { padding: 0; margin-bottom: 6px; color: var(--muted); font-size: .92rem; }
+.th-group label { position: relative; }
+.th-group input { position: absolute; opacity: 0; inset: 0; cursor: pointer; }
+.th-group span { display: block; padding: 8px 14px; border: 1px solid var(--line-strong); margin-left: -1px; font-weight: 600; transition: background .2s, color .2s; }
+.th-group label:first-child span { margin-left: 0; }
+.th-group input:checked + span { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.th-group input:focus-visible + span { outline: 3px solid var(--accent2); outline-offset: 2px; }
+.th-fig { margin: 0; }
+.th-panes { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.th-svg, .th-cv { width: 100%; height: auto; display: block; border: 1px solid var(--line-strong); background: var(--surface); aspect-ratio: 4 / 3; }
+.th-cv { image-rendering: pixelated; background: #0b0614; }
+.th-fig figcaption { margin-top: 6px; font-size: .92rem; color: var(--muted); }
+.th-bed { fill: var(--ink); opacity: .55; }
+.th-layer { fill: var(--accent2); opacity: .75; stroke: var(--bg); stroke-width: .6; }
+.th-noz { fill: var(--ink); }
+.th-hot { fill: #ff7a29; }
+.th-scale { display: flex; align-items: center; gap: 10px; margin-top: 12px; font-size: .88rem; color: var(--muted); }
+.th-scale i { flex: 1; height: 10px; background: linear-gradient(90deg, #0b0614, #3b0f70, #a02a6c, #ed5c3a, #fbb41a, #fcfdbf); border: 1px solid var(--line); }
+.th-read { margin: 10px 0 4px; font-weight: 600; }
+.th-read #th-peak { font: 600 1.5rem var(--font-head); color: var(--accent); margin-right: 4px; }
+@media (max-width: 640px) { .th-panes { grid-template-columns: minmax(0, 1fr); } }

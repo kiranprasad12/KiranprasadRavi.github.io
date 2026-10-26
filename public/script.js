@@ -573,3 +573,139 @@
     });
   })();
 })();
+
+/* ---------- thermal demo ---------- */
+(function () {
+  "use strict";
+  var cv = document.getElementById("th-cv");
+  if (!cv || !cv.getContext) return;
+  var ctx = cv.getContext("2d");
+  var layersG = document.getElementById("th-layers");
+  var noz = document.getElementById("th-nozzle");
+  var peakEl = document.getElementById("th-peak");
+  var playBtn = document.getElementById("th-play");
+  var reduce = document.documentElement.classList.contains("reduce");
+  var W = 32, H = 24, N = 14, AMB = 25, MAXT = 220, BED = 60, STEP = 1 / 30;
+  var NS = "http://www.w3.org/2000/svg";
+
+  var T = new Float32Array(W * H), solid = new Uint8Array(W * H), tmp = new Float32Array(W * H);
+  var speed = 12, wall = "thick", c0 = 8, c1 = 24;
+  var layer = 0, nx = 0, dir = 1, wait = 0, acc = 0, last = 0, running = true, visible = false, raf = 0, rects = [];
+
+  var STOPS = [[0, [11, 6, 20]], [0.25, [59, 15, 112]], [0.5, [160, 42, 108]], [0.7, [237, 92, 58]], [0.88, [251, 180, 26]], [1, [252, 253, 191]]];
+  function color(t) {
+    var f = Math.max(0, Math.min(1, (t - AMB) / (MAXT - AMB)));
+    for (var i = 1; i < STOPS.length; i++) {
+      if (f <= STOPS[i][0]) {
+        var a = STOPS[i - 1], b = STOPS[i], k = (f - a[0]) / (b[0] - a[0]);
+        return [a[1][0] + (b[1][0] - a[1][0]) * k, a[1][1] + (b[1][1] - a[1][1]) * k, a[1][2] + (b[1][2] - a[1][2]) * k];
+      }
+    }
+    return STOPS[STOPS.length - 1][1];
+  }
+
+  function reset() {
+    var i, x;
+    for (i = 0; i < W * H; i++) { T[i] = AMB; solid[i] = 0; }
+    for (x = 0; x < W; x++) { T[(H - 1) * W + x] = BED; solid[(H - 1) * W + x] = 1; }
+    c0 = wall === "thin" ? 12 : 8;
+    c1 = wall === "thin" ? 20 : 24;
+    layer = 0; dir = 1; nx = c0; wait = 0;
+    while (layersG.firstChild) layersG.removeChild(layersG.firstChild);
+    rects = [];
+    for (i = 0; i < N; i++) {
+      var r = document.createElementNS(NS, "rect");
+      r.setAttribute("class", "th-layer");
+      r.setAttribute("x", c0 * 7); r.setAttribute("y", (H - 2 - i) * 7);
+      r.setAttribute("width", (c1 - c0) * 7); r.setAttribute("height", 7);
+      r.style.display = "none";
+      layersG.appendChild(r); rects.push(r);
+    }
+  }
+
+  function tick() {
+    var row = H - 2 - layer, x, y, i;
+    if (wait > 0) { wait -= 1; if (wait === 0 && layer >= N) reset(); }
+    else {
+      nx += dir * speed * STEP;
+      if (nx > c1 - 0.5) { nx = c1 - 0.5; dir = -1; layer++; }
+      else if (nx < c0 + 0.5) { nx = c0 + 0.5; dir = 1; layer++; }
+      for (x = Math.max(0, Math.floor(nx - 1)); x <= Math.min(W - 1, Math.ceil(nx + 1)); x++) {
+        if (x < c0 || x >= c1) continue;
+        i = row * W + x;
+        solid[i] = 1;
+        if (Math.abs(x + 0.5 - nx) < 1.3) T[i] = MAXT - 10;
+        rects[layer < N ? layer : N - 1].style.display = "";
+      }
+      if (layer >= N) wait = 45;
+    }
+    for (y = 0; y < H; y++) {
+      for (x = 0; x < W; x++) {
+        i = y * W + x;
+        var s = T[i], n = 0, a = 0;
+        if (x > 0) { a += T[i - 1]; n++; }
+        if (x < W - 1) { a += T[i + 1]; n++; }
+        if (y > 0) { a += T[i - W]; n++; }
+        if (y < H - 1) { a += T[i + W]; n++; }
+        var v = s + 0.22 * (a / n - s);
+        v -= (solid[i] ? 0.012 : 0.3) * (v - AMB);
+        if (y === H - 1) v = BED;
+        tmp[i] = v;
+      }
+    }
+    var t = T; T = tmp; tmp = t;
+  }
+
+  function draw() {
+    var img = ctx.createImageData(W, H), i, c, peak = AMB;
+    for (i = 0; i < W * H; i++) {
+      var v = T[i]; if (i < (H - 1) * W && v > peak) peak = v;
+      c = color(v);
+      img.data[i * 4] = c[0]; img.data[i * 4 + 1] = c[1]; img.data[i * 4 + 2] = c[2]; img.data[i * 4 + 3] = 255;
+    }
+    ctx.putImageData(img, 0, 0);
+    peakEl.textContent = Math.round(peak) + " \u00b0C";
+    noz.setAttribute("transform", "translate(" + (nx * 7).toFixed(1) + "," + (Math.min((H - 2 - layer), H - 2) * 7).toFixed(1) + ")");
+    var shown = Math.min(layer + 1, N);
+    for (i = 0; i < N; i++) if (i >= shown) rects[i].style.display = "none";
+  }
+
+  function frame(ts) {
+    raf = 0;
+    if (!running || !visible) return;
+    if (!last) last = ts;
+    acc += Math.min(0.1, (ts - last) / 1000); last = ts;
+    while (acc >= STEP) { tick(); acc -= STEP; }
+    draw();
+    raf = requestAnimationFrame(frame);
+  }
+  function kick() { if (!raf && running && visible) { last = 0; raf = requestAnimationFrame(frame); } }
+
+  function setRunning(on) {
+    running = on;
+    playBtn.textContent = on ? "Pause" : "Play";
+    playBtn.setAttribute("aria-pressed", on ? "true" : "false");
+    if (on) kick();
+  }
+
+  Array.prototype.forEach.call(document.querySelectorAll('input[name="th-speed"]'), function (r) {
+    r.addEventListener("change", function () { if (r.checked) speed = parseFloat(r.value); });
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('input[name="th-wall"]'), function (r) {
+    r.addEventListener("change", function () { if (r.checked) { wall = r.value; reset(); draw(); kick(); } });
+  });
+  playBtn.addEventListener("click", function () { setRunning(!running); });
+
+  reset();
+  var k;
+  for (k = 0; k < 150; k++) tick();
+  draw();
+  if (reduce) { running = false; playBtn.textContent = "Play"; playBtn.setAttribute("aria-pressed", "false"); }
+
+  if ("IntersectionObserver" in window) {
+    new IntersectionObserver(function (es) {
+      visible = es[0].isIntersecting;
+      if (visible) kick();
+    }, { threshold: 0.2 }).observe(document.getElementById("th-demo"));
+  } else { visible = true; kick(); }
+})();

@@ -325,6 +325,68 @@
       </div>
     </section>
 
+    <!-- ===================== THERMAL IMAGING ===================== -->
+    <section id="thermal" class="sec" data-sec data-label="Thermal imaging" data-nav="work" aria-labelledby="thermal-title">
+      <div class="wrap">
+        <div class="sec-head" data-reveal="head">
+          <h2 id="thermal-title">Thermal imaging of a 3D printer</h2>
+          <span class="dim" aria-hidden="true"></span>
+        </div>
+        <div class="agent-grid">
+          <div data-reveal="left">
+            <p>
+              In a digital twins course, our group watched a 3D printer at work with an
+              MLX90640 thermal sensor. The sensor sends a 32 by 24 pixel temperature image
+              over I2C to an ESP32. We compared different print speeds and wall sizes.
+              I did the wiring myself.
+            </p>
+            <p>
+              The demo shows the idea. Change the speed or the wall size and watch how the
+              heat spreads behind the nozzle.
+            </p>
+            <div class="th-ctrl">
+              <fieldset class="th-group">
+                <legend>Print speed</legend>
+                <label><input type="radio" name="th-speed" value="6"><span>Slow</span></label>
+                <label><input type="radio" name="th-speed" value="12" checked><span>Medium</span></label>
+                <label><input type="radio" name="th-speed" value="24"><span>Fast</span></label>
+              </fieldset>
+              <fieldset class="th-group">
+                <legend>Wall size</legend>
+                <label><input type="radio" name="th-wall" value="thin"><span>Thin</span></label>
+                <label><input type="radio" name="th-wall" value="thick" checked><span>Thick</span></label>
+              </fieldset>
+              <button type="button" class="btn" id="th-play" aria-pressed="true">Pause</button>
+            </div>
+            <p class="tags">ESP32, I2C, MLX90640, PrusaSlicer</p>
+          </div>
+
+          <figure class="th-fig" data-reveal="right" id="th-demo">
+            <div class="th-panes">
+              <div>
+                <svg id="th-svg" class="th-svg" viewBox="0 0 224 168" role="img" aria-label="Side view of a part being printed layer by layer. The nozzle moves back and forth on top of the part.">
+                  <rect class="th-bed" x="0" y="161" width="224" height="7"/>
+                  <g id="th-layers"></g>
+                  <g id="th-nozzle">
+                    <path class="th-noz" d="M-6,-22 H6 V-6 L2,0 H-2 L-6,-6 Z"/>
+                    <path class="th-hot" d="M-2,0 H2 L0,5 Z"/>
+                  </g>
+                </svg>
+                <figcaption>What the sensor sees</figcaption>
+              </div>
+              <div>
+                <canvas id="th-cv" class="th-cv" width="32" height="24" role="img" aria-label="Thermal image of the same part, 32 by 24 pixels. Warm areas are bright."></canvas>
+                <figcaption>What the sensor reads</figcaption>
+              </div>
+            </div>
+            <div class="th-scale" aria-hidden="true"><span>25 &deg;C</span><i></i><span>220 &deg;C</span></div>
+            <p class="th-read"><span id="th-peak">--</span> hottest pixel <span class="muted small">(illustrative values)</span></p>
+            <p class="muted small">A simple heat model to explain the idea, not our measured data.</p>
+          </figure>
+        </div>
+      </div>
+    </section>
+
     <!-- ===================== PROJECTS ===================== -->
     <section id="projects" class="sec" data-sec data-label="All projects" data-nav="work" aria-labelledby="projects-title">
       <div class="wrap">
@@ -362,6 +424,7 @@
             <h3>Thermal imaging of 3D printing</h3>
             <p>A group project for a digital twins course. We used an MLX90640 thermal sensor with an ESP32 to watch a 3D printer at work, and compared different print speeds and wall sizes. I did the wiring myself.</p>
             <p class="tags">ESP32, I2C, MLX90640, PrusaSlicer</p>
+            <a class="more" href="#thermal">See the thermal demo</a>
           </article>
 
           <article class="proj" id="proj-paper" data-cat="res" data-reveal="rise" style="--i:3">
