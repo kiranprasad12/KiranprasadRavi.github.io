@@ -583,3 +583,5 @@ html.reduce { scroll-behavior: auto; }
 
 /* Reveal animations slide elements in from the side; do not let them widen the page on phones. */
 html, body { overflow-x: clip; }
+
+.hobby-h { margin-top: 32px; margin-bottom: 14px; }
