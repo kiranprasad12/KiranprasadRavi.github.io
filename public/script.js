@@ -9,6 +9,9 @@
   var root = doc.documentElement;
   var reduce = root.classList.contains("reduce");
 
+  function T(k, en) { return window.kprT ? window.kprT(k, en) : en; }
+  function onLang(fn) { doc.addEventListener("kpr:lang", fn); }
+
   var EMAIL = "kiranprasad200112@gmail.com";
   var GITHUB_USER = "kiranprasad12";
 
@@ -71,14 +74,22 @@
   /* ---------- Typed line in the hero ---------- */
   (function () {
     var el = $("#typed");
-    if (!el || reduce) return;
-    var phrases = [
+    if (!el) return;
+    var EN = [
       "hybrid vehicle energy management.",
       "reinforcement learning for fixture design.",
       "embedded sensing with an ESP32.",
       "simulation, control and data."
     ];
+    var phrases = T("js.phrases", EN);
     var pi = 0, ci = phrases[0].length, deleting = true;
+    el.textContent = phrases[0];
+    onLang(function () {
+      phrases = T("js.phrases", EN);
+      pi = 0; ci = phrases[0].length; deleting = true;
+      el.textContent = phrases[0];
+    });
+    if (reduce) return;
     function step() {
       var full = phrases[pi];
       if (!deleting) {
@@ -192,9 +203,14 @@
       f.classList.toggle("is-flow", m.flows.indexOf(f.getAttribute("data-flow")) >= 0);
     });
     var t = $("#mode-text"), s = $("#mode-status");
-    if (t) t.textContent = m.text;
-    if (s) s.textContent = m.status;
+    if (t) t.textContent = T("js.mode." + name + ".text", m.text);
+    if (s) s.textContent = T("js.mode." + name + ".status", m.status);
   }
+
+  onLang(function () {
+    setMode(stage ? (stage.getAttribute("data-mode") || "electric") : "electric");
+    window.dispatchEvent(new Event("scroll"));
+  });
 
   if (driveScroll && stage && truck) {
     $$("[data-s]", truck).forEach(function (el) {
@@ -236,8 +252,8 @@
         modeBtns.forEach(function (b) { b.disabled = !live; });
       }
       if (hint) {
-        hint.textContent = p < 0.02 ? "Scroll down to draw the vehicle."
-          : (live ? "Choose a driving mode to see where the energy goes." : "Keep scrolling.");
+        hint.textContent = p < 0.02 ? T("js.hint.start", "Scroll down to draw the vehicle.")
+          : (live ? T("js.hint.live", "Choose a driving mode to see where the energy goes.") : T("js.hint.keep", "Keep scrolling."));
       }
     };
     modeBtns.forEach(function (b) { b.disabled = true; });
@@ -290,12 +306,12 @@
     function stop() {
       clearInterval(timer);
       timer = null;
-      if (play) play.textContent = "Play episode";
+      if (play) play.textContent = T("js.rl.play", "Play episode");
     }
     function start() {
       stop();
       setStep(1);
-      if (play) play.textContent = "Stop";
+      if (play) play.textContent = T("js.rl.stop", "Stop");
       timer = setInterval(function () {
         if (step >= 5) { stop(); return; }
         setStep(step + 1);
@@ -306,6 +322,8 @@
     });
     if (play) play.addEventListener("click", function () { if (timer) stop(); else start(); });
     setStep(3);
+    onLang(function () { if (play) play.textContent = timer ? T("js.rl.stop", "Stop") : T("js.rl.play", "Play episode"); });
+    if (play) play.textContent = T("js.rl.play", "Play episode");
 
     var demo = $("#rl-demo");
     if (demo && !reduce && "IntersectionObserver" in window) {
@@ -404,7 +422,21 @@
   (function () {
     var state = $("#gh-state"), list = $("#gh-repos");
     if (!state || !list) return;
-    if (!window.fetch) { state.textContent = "Open my GitHub profile to see my repositories."; return; }
+    var kind = "loading", count = 0;
+    function dateLoc() { return (window.kprLang && window.kprLang() === "de") ? "de-DE" : "en-GB"; }
+    function renderState() {
+      if (kind === "nofetch") state.textContent = T("js.gh.nofetch", "Open my GitHub profile to see my repositories.");
+      else if (kind === "none") state.textContent = T("js.gh.none", "No public repositories yet. New work will appear here.");
+      else if (kind === "ok") state.textContent = count + (count === 1 ? T("js.gh.one", " public repository, loaded from GitHub.") : T("js.gh.many", " public repositories, loaded from GitHub."));
+      else if (kind === "fail") state.textContent = T("js.gh.fail", "The repository list could not be loaded right now. Please open my GitHub profile.");
+      else state.textContent = T("code.4", "Loading my repositories from GitHub.");
+      $$("[data-pushed]", list).forEach(function (u) {
+        u.textContent = T("js.gh.updated", "Updated ") + new Date(u.getAttribute("data-pushed")).toLocaleDateString(dateLoc(), { month: "short", year: "numeric" });
+      });
+    }
+    onLang(renderState);
+    renderState();
+    if (!window.fetch) { kind = "nofetch"; renderState(); return; }
     fetch("https://api.github.com/users/" + GITHUB_USER + "/repos?per_page=100&sort=updated", {
       headers: { Accept: "application/vnd.github+json" }
     }).then(function (r) {
@@ -413,8 +445,8 @@
     }).then(function (all) {
       var repos = all.filter(function (r) { return !r.fork; })
         .sort(function (a, b) { return new Date(b.pushed_at) - new Date(a.pushed_at); });
-      if (!repos.length) { state.textContent = "No public repositories yet. New work will appear here."; return; }
-      state.textContent = repos.length + (repos.length === 1 ? " public repository" : " public repositories") + ", loaded from GitHub.";
+      if (!repos.length) { kind = "none"; renderState(); return; }
+      kind = "ok"; count = repos.length;
       repos.slice(0, 6).forEach(function (r) {
         var li = doc.createElement("li");
         li.className = "repo";
@@ -436,20 +468,21 @@
           meta.appendChild(l);
         }
         var u = doc.createElement("span");
-        u.textContent = "Updated " + new Date(r.pushed_at).toLocaleDateString("en-GB", { month: "short", year: "numeric" });
+        u.setAttribute("data-pushed", r.pushed_at);
         meta.appendChild(u);
         li.appendChild(meta);
         list.appendChild(li);
       });
       list.hidden = false;
+      renderState();
     }).catch(function () {
-      state.textContent = "The repository list could not be loaded right now. Please open my GitHub profile.";
+      kind = "fail"; renderState();
     });
   })();
 
   /* ---------- Contact: copy email, mail form, CV button ---------- */
   function copyEmail() {
-    function done() { toast("Email address copied"); }
+    function done() { toast(T("js.toast.copied", "Email address copied")); }
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(EMAIL).then(done, fallback);
     } else { fallback(); }
@@ -457,7 +490,7 @@
       var t = doc.createElement("textarea");
       t.value = EMAIL; t.setAttribute("readonly", ""); t.style.position = "fixed"; t.style.opacity = "0";
       doc.body.appendChild(t); t.select();
-      try { doc.execCommand("copy"); done(); } catch (e) { toast("Copy did not work. Please select the address by hand."); }
+      try { doc.execCommand("copy"); done(); } catch (e) { toast(T("js.toast.copyfail", "Copy did not work. Please select the address by hand.")); }
       doc.body.removeChild(t);
     }
   }
@@ -471,9 +504,9 @@
       var name = $("#f-name").value.trim();
       var topic = $("#f-topic").value;
       var msg = $("#f-msg").value.trim();
-      var body = (msg || "Hello Kiran,") + (name ? "\n\nFrom: " + name : "");
+      var body = (msg || T("js.mail.hello", "Hello Kiran,")) + (name ? "\n\n" + T("js.mail.from", "From: ") + name : "");
       window.location.href = "mailto:" + EMAIL + "?subject=" + encodeURIComponent("Portfolio: " + topic) + "&body=" + encodeURIComponent(body);
-      toast("Opening your email app");
+      toast(T("js.toast.opening", "Opening your email app"));
     });
   }
 
@@ -485,18 +518,18 @@
 
     function buildItems() {
       items = secs.map(function (s) {
-        return { label: s.getAttribute("data-label"), hint: "Section", run: function () { goTo(s); } };
+        return { label: s.getAttribute("data-label"), hint: T("js.pal.section", "Section"), run: function () { goTo(s); } };
       });
       items.push(
-        { label: "Theme: Blueprint", hint: "Action", run: function () { setTheme("blueprint", true, true); } },
-        { label: "Theme: Paper", hint: "Action", run: function () { setTheme("paper", true, true); } },
-        { label: "Theme: Hi-vis", hint: "Action", run: function () { setTheme("hivis", true, true); } },
-        { label: "Open GitHub profile", hint: "Link", run: function () { window.open("https://github.com/" + GITHUB_USER, "_blank", "noopener"); } },
-        { label: "Open GitLab profile", hint: "Link", run: function () { window.open("https://gitlab.rhrk.uni-kl.de/ten22byf", "_blank", "noopener"); } },
-        { label: "Open LinkedIn profile", hint: "Link", run: function () { window.open("https://www.linkedin.com/in/kiran-prasad-ravi-096106244", "_blank", "noopener"); } },
-        { label: "Copy email address", hint: "Action", run: copyEmail },
-        { label: "Write an email", hint: "Action", run: function () { window.location.href = "mailto:" + EMAIL; } },
-        { label: "Back to top", hint: "Action", run: function () { window.scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" }); } }
+        { label: T("js.pal.t1", "Theme: Blueprint"), hint: T("js.pal.action", "Action"), run: function () { setTheme("blueprint", true, true); } },
+        { label: T("js.pal.t2", "Theme: Paper"), hint: T("js.pal.action", "Action"), run: function () { setTheme("paper", true, true); } },
+        { label: T("js.pal.t3", "Theme: Hi-vis"), hint: T("js.pal.action", "Action"), run: function () { setTheme("hivis", true, true); } },
+        { label: T("js.pal.gh", "Open GitHub profile"), hint: T("js.pal.link", "Link"), run: function () { window.open("https://github.com/" + GITHUB_USER, "_blank", "noopener"); } },
+        { label: T("js.pal.gl", "Open GitLab profile"), hint: T("js.pal.link", "Link"), run: function () { window.open("https://gitlab.rhrk.uni-kl.de/ten22byf", "_blank", "noopener"); } },
+        { label: T("js.pal.li", "Open LinkedIn profile"), hint: T("js.pal.link", "Link"), run: function () { window.open("https://www.linkedin.com/in/kiran-prasad-ravi-096106244", "_blank", "noopener"); } },
+        { label: T("js.pal.copy", "Copy email address"), hint: T("js.pal.action", "Action"), run: copyEmail },
+        { label: T("js.pal.mail", "Write an email"), hint: T("js.pal.action", "Action"), run: function () { window.location.href = "mailto:" + EMAIL; } },
+        { label: T("js.pal.top", "Back to top"), hint: T("js.pal.action", "Action"), run: function () { window.scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" }); } }
       );
     }
     function render(q) {
@@ -585,6 +618,7 @@
   var peakEl = document.getElementById("th-peak");
   var playBtn = document.getElementById("th-play");
   var reduce = document.documentElement.classList.contains("reduce");
+  function TX(k, en) { return window.kprT ? window.kprT(k, en) : en; }
   var W = 32, H = 24, N = 14, AMB = 25, MAXT = 220, BED = 60, STEP = 1 / 30;
   var NS = "http://www.w3.org/2000/svg";
 
@@ -683,7 +717,7 @@
 
   function setRunning(on) {
     running = on;
-    playBtn.textContent = on ? "Pause" : "Play";
+    playBtn.textContent = on ? TX("js.th.pause", "Pause") : TX("js.th.play", "Play");
     playBtn.setAttribute("aria-pressed", on ? "true" : "false");
     if (on) kick();
   }
@@ -695,12 +729,14 @@
     r.addEventListener("change", function () { if (r.checked) { wall = r.value; reset(); draw(); kick(); } });
   });
   playBtn.addEventListener("click", function () { setRunning(!running); });
+  document.addEventListener("kpr:lang", function () { playBtn.textContent = running ? TX("js.th.pause", "Pause") : TX("js.th.play", "Play"); });
+  playBtn.textContent = running ? TX("js.th.pause", "Pause") : TX("js.th.play", "Play");
 
   reset();
   var k;
   for (k = 0; k < 150; k++) tick();
   draw();
-  if (reduce) { running = false; playBtn.textContent = "Play"; playBtn.setAttribute("aria-pressed", "false"); }
+  if (reduce) { running = false; playBtn.textContent = TX("js.th.play", "Play"); playBtn.setAttribute("aria-pressed", "false"); }
 
   if ("IntersectionObserver" in window) {
     new IntersectionObserver(function (es) {

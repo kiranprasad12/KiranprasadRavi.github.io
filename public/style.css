@@ -512,7 +512,7 @@ html.theme-fade, html.theme-fade * { transition: background-color .45s, color .4
   .rows > div { grid-template-columns: minmax(0, 1fr); gap: 4px; }
   .drive-ui { grid-template-columns: minmax(0, 1fr); }
 }
-@media (max-width: 800px) {
+@media (max-width: 1040px) {
   .menu-btn { display: block; }
   .jump-btn .kbd, .jump-btn .lbl { display: none; }
   .jump-btn { padding: 6px 9px; }
@@ -585,3 +585,13 @@ html.reduce { scroll-behavior: auto; }
 html, body { overflow-x: clip; }
 
 .hobby-h { margin-top: 32px; margin-bottom: 14px; }
+
+/* ---------- language switch ---------- */
+.langsw { display: inline-flex; }
+.lang-btn { min-width: 34px; height: 30px; padding: 0 8px; border: 1px solid var(--line-strong); background: transparent; color: var(--muted); font: 600 .9rem var(--font-body); cursor: pointer; margin-left: -1px; transition: background .2s, color .2s; }
+.lang-btn:first-child { margin-left: 0; }
+.lang-btn:hover { color: var(--ink); }
+.lang-btn[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.lang-btn:focus-visible { outline: 3px solid var(--accent2); outline-offset: 2px; position: relative; z-index: 1; }
+.brand, .nav a, .jump-btn { white-space: nowrap; }
+@media (max-width: 1500px) and (min-width: 1041px) { .jump-btn .kbd, .jump-btn .lbl { display: none; } .nav { gap: 0; } .nav a { padding: 8px 10px; } }
