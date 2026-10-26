@@ -526,6 +526,9 @@ html.theme-fade, html.theme-fade * { transition: background-color .45s, color .4
 }
 @media (max-width: 640px) {
   .wrap { width: min(1120px, 100% - 32px); }
+  .sec-head { gap: 14px; }
+  .sec-head h2 { flex: 0 1 auto; min-width: 0; }
+  .dim { min-width: 24px; }
   .truck .tr-label { font-size: 26px; }
   .truck .tr-dim { font-size: 24px; }
   .truck .dr { stroke-width: 3.6; }
@@ -577,3 +580,6 @@ html.reduce { scroll-behavior: auto; }
 .th-read { margin: 10px 0 4px; font-weight: 600; }
 .th-read #th-peak { font: 600 1.5rem var(--font-head); color: var(--accent); margin-right: 4px; }
 @media (max-width: 640px) { .th-panes { grid-template-columns: minmax(0, 1fr); } }
+
+/* Reveal animations slide elements in from the side; do not let them widen the page on phones. */
+html, body { overflow-x: clip; }
