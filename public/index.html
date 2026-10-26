@@ -36,7 +36,7 @@
 <span aria-hidden="true" class="brand-mark" data-i18n="site-header.2" data-i18n-html="1">KR</span><span class="full" data-i18n="site-header.3" data-i18n-html="1">Kiran Prasad Ravi</span>
 </a>
 <nav aria-label="Main" class="nav" data-i18n-attr="aria-label:site-header.4" id="nav">
-<a data-i18n="site-header.5" data-i18n-html="1" data-nav="work" href="#agent">Work</a>
+<a data-i18n="site-header.5" data-i18n-html="1" data-nav="work" href="#drive">Work</a>
 <a data-i18n="site-header.6" data-i18n-html="1" data-nav="about" href="#about">About</a>
 <a data-i18n="site-header.7" data-i18n-html="1" data-nav="path" href="#path">Path</a>
 <a data-i18n="site-header.8" data-i18n-html="1" data-nav="skills" href="#skills">Skills</a>
@@ -67,16 +67,16 @@
 <div class="hero-text">
 <h1><span class="nm" data-i18n="home.1" data-i18n-html="1">Kiran</span><span class="nm" data-i18n="home.2" data-i18n-html="1">Prasad</span><span class="nm" data-i18n="home.3" data-i18n-html="1">Ravi</span></h1>
 <p class="typed">
-<span class="sr-only" data-i18n="home.4" data-i18n-html="1">I work on reinforcement learning for fixture design, embedded sensing and simulation.</span>
-<span aria-hidden="true"><span class="typed-pre" data-i18n="home.5" data-i18n-html="1">I work on </span><span class="typed-text" id="typed">reinforcement learning for fixture design.</span><span class="caret"></span></span>
+<span class="sr-only" data-i18n="home.4" data-i18n-html="1">I work on hybrid vehicle energy management, reinforcement learning for fixture design, embedded sensing and simulation.</span>
+<span aria-hidden="true"><span class="typed-pre" data-i18n="home.5" data-i18n-html="1">I work on </span><span class="typed-text" id="typed">hybrid vehicle energy management.</span><span class="caret"></span></span>
 </p>
 <p class="lead" data-i18n="home.7" data-i18n-html="1">
                 I study Commercial Vehicle Technology at RPTU Kaiserslautern-Landau in Germany.
                 My work sits where mechanical engineering meets software and data.
               </p>
 <div class="btn-row">
-
-<a class="btn btn-primary" data-i18n="home.9" data-i18n-html="1" href="#projects">All projects</a>
+<a class="btn btn-primary" data-i18n="home.8" data-i18n-html="1" href="#drive">Explore the hybrid demo</a>
+<a class="btn" data-i18n="home.9" data-i18n-html="1" href="#projects">All projects</a>
 <a class="btn" data-i18n="home.10" data-i18n-html="1" href="#contact">Contact me</a>
 <a class="btn" data-i18n="home.11" data-i18n-html="1" download="" href="Kiran_Prasad_Ravi_CV.pdf">Download CV (PDF, German)</a>
 </div>
@@ -100,8 +100,131 @@
 </div>
 </div>
 </section>
-
-
+<!-- ===================== HYBRID POWERTRAIN (scroll drawing) ===================== -->
+<section aria-labelledby="drive-title" class="drive" data-i18n-attr="data-label:sec.drive" data-label="Hybrid powertrain" data-nav="work" data-sec="" id="drive">
+<div class="drive-scroll" id="drive-scroll">
+<div class="drive-stage" data-mode="electric" id="drive-stage">
+<div class="wrap drive-head">
+<div class="sec-head">
+<h2 data-i18n="drive.1" data-i18n-html="1" id="drive-title">Hybrid powertrain</h2>
+<span aria-hidden="true" class="dim"></span>
+</div>
+<p aria-live="polite" class="drive-hint" id="drive-hint">Scroll down to draw the vehicle.</p>
+</div>
+<div class="wrap drive-canvas" id="drive-canvas">
+<svg aria-labelledby="truck-t truck-d" class="truck" id="truck" preserveaspectratio="xMidYMid meet" role="img" viewbox="0 0 1000 424">
+<title data-i18n="drive.3" data-i18n-html="1" id="truck-t">Side view of a hybrid commercial vehicle</title>
+<desc data-i18n="drive.4" data-i18n-html="1" id="truck-d">Line drawing of a box truck with an engine, an electric motor, a battery and a drive axle. Arrows show where energy flows in the selected driving mode.</desc>
+<defs>
+<pattern height="9" id="hatch" patterntransform="rotate(45)" patternunits="userSpaceOnUse" width="9">
+<line class="hatch-line" x1="0" x2="0" y1="0" y2="9"></line>
+</pattern>
+</defs>
+<!-- ground -->
+<rect data-e=".12" data-s="0" fill="url(#hatch)" height="10" width="840" x="90" y="366"></rect>
+<path class="dr ground" d="M90,366 H930" data-e=".12" data-s="0" pathlength="1"></path>
+<!-- chassis -->
+<path class="dr" d="M140,266 H890" data-e=".34" data-s=".08" pathlength="1"></path>
+<path class="dr faint" d="M140,272 H890" data-e=".34" data-s=".1" pathlength="1"></path>
+<!-- cab -->
+<path class="dr" d="M140,266 V166 Q140,146 162,146 H262 Q276,146 284,160 L312,206 H338 V266" data-e=".42" data-s=".1" pathlength="1"></path>
+<path class="dr" d="M172,166 H256 L280,206 H172 Z" data-e=".5" data-s=".34" pathlength="1"></path>
+<path class="dr faint" d="M230,206 V262" data-e=".5" data-s=".36" pathlength="1"></path>
+<path class="dr faint" d="M140,226 H152 V240 H140" data-e=".5" data-s=".36" pathlength="1"></path>
+<!-- cargo box -->
+<rect class="dr" data-e=".52" data-s=".2" height="152" pathlength="1" rx="4" width="540" x="350" y="104"></rect>
+<path class="dr faint" d="M350,128 H890" data-e=".52" data-s=".4" pathlength="1"></path>
+<path class="dr faint" d="M862,128 V256" data-e=".52" data-s=".4" pathlength="1"></path>
+<!-- wheel arches -->
+<path class="dr" d="M151,320 A54,54 0 0 1 259,320" data-e=".42" data-s=".25" pathlength="1"></path>
+<path class="dr" d="M691,320 A54,54 0 0 1 799,320" data-e=".42" data-s=".25" pathlength="1"></path>
+<!-- wheels -->
+<circle class="dr" cx="205" cy="320" data-e=".3" data-s=".05" pathlength="1" r="46"></circle>
+<circle class="dr faint" cx="205" cy="320" data-e=".32" data-s=".15" pathlength="1" r="32"></circle>
+<circle class="dr" cx="745" cy="320" data-e=".3" data-s=".05" pathlength="1" r="46"></circle>
+<circle class="dr faint" cx="745" cy="320" data-e=".32" data-s=".15" pathlength="1" r="32"></circle>
+<g data-e=".34" data-s=".22">
+<g class="spin" style="transform-origin: 205px 320px">
+<path class="spoke" d="M205,320 V292"></path>
+<path class="spoke" d="M205,320 V292" transform="rotate(72 205 320)"></path>
+<path class="spoke" d="M205,320 V292" transform="rotate(144 205 320)"></path>
+<path class="spoke" d="M205,320 V292" transform="rotate(216 205 320)"></path>
+<path class="spoke" d="M205,320 V292" transform="rotate(288 205 320)"></path>
+</g>
+<g class="spin" style="transform-origin: 745px 320px">
+<path class="spoke" d="M745,320 V292"></path>
+<path class="spoke" d="M745,320 V292" transform="rotate(72 745 320)"></path>
+<path class="spoke" d="M745,320 V292" transform="rotate(144 745 320)"></path>
+<path class="spoke" d="M745,320 V292" transform="rotate(216 745 320)"></path>
+<path class="spoke" d="M745,320 V292" transform="rotate(288 745 320)"></path>
+</g>
+</g>
+<!-- powertrain parts -->
+<path class="shaft" d="M420,320 H745" data-e=".66" data-s=".52" pathlength="1"></path>
+<rect class="dr comp" data-comp="engine" data-e=".68" data-s=".52" height="46" pathlength="1" width="96" x="200" y="206"></rect>
+<rect class="dr comp" data-comp="motor" data-e=".72" data-s=".56" height="44" pathlength="1" width="70" x="350" y="298"></rect>
+<rect class="dr comp" data-comp="battery" data-e=".76" data-s=".6" height="32" pathlength="1" width="150" x="470" y="276"></rect>
+<g data-e=".78" data-s=".7">
+<path class="cell" d="M500,276 V308 M530,276 V308 M560,276 V308 M590,276 V308" stroke="var(--accent)"></path>
+<rect class="soc" height="24" width="142" x="474" y="280"></rect>
+</g>
+<!-- energy flows -->
+<path class="flow" d="M296,229 H368 V298" data-flow="e2m"></path>
+<path class="flow" d="M470,292 H402 V298" data-flow="b2m"></path>
+<path class="flow" d="M402,298 V292 H470" data-flow="m2b"></path>
+<path class="flow" d="M420,320 H745" data-flow="m2w"></path>
+<path class="flow" d="M745,320 H420" data-flow="w2m"></path>
+<!-- labels -->
+<path class="leader" d="M248,206 V136" data-e=".8" data-s=".72" pathlength="1"></path>
+<text class="tr-label" data-e=".82" data-i18n="drive.5" data-i18n-html="1" data-s=".74" x="248" y="128">Engine</text>
+<path class="leader" d="M385,342 V378" data-e=".8" data-s=".72" pathlength="1"></path>
+<text class="tr-label" data-e=".82" data-i18n="drive.6" data-i18n-html="1" data-s=".74" x="385" y="396">Electric motor</text>
+<path class="leader" d="M545,276 V246" data-e=".8" data-s=".72" pathlength="1"></path>
+<text class="tr-label" data-e=".82" data-i18n="drive.7" data-i18n-html="1" data-s=".74" x="545" y="238">Battery</text>
+<path class="leader" d="M745,366 V378" data-e=".8" data-s=".72" pathlength="1"></path>
+<text class="tr-label" data-e=".82" data-i18n="drive.8" data-i18n-html="1" data-s=".74" x="745" y="396">Drive axle</text>
+<!-- dimension line -->
+<path class="dr faint" d="M140,406 V422 M140,414 H370" data-e=".86" data-s=".76" pathlength="1"></path>
+<path class="dr faint" d="M890,406 V422 M890,414 H660" data-e=".86" data-s=".76" pathlength="1"></path>
+<text class="tr-dim" data-e=".88" data-i18n="drive.9" data-i18n-html="1" data-s=".8" x="515" y="419">Side view, simplified</text>
+</svg>
+<div aria-hidden="true" class="xhair" id="xhair"><span id="xhair-t">x 0  y 0</span></div>
+</div>
+<div class="wrap drive-ui">
+<div aria-label="Driving mode" class="modes" data-i18n-attr="aria-label:drive.10" role="radiogroup">
+<button aria-checked="true" class="mode-btn" data-i18n="drive.11" data-i18n-html="1" data-mode="electric" role="radio" type="button">Electric drive</button>
+<button aria-checked="false" class="mode-btn" data-i18n="drive.12" data-i18n-html="1" data-mode="engine" role="radio" type="button">Engine drive</button>
+<button aria-checked="false" class="mode-btn" data-i18n="drive.13" data-i18n-html="1" data-mode="boost" role="radio" type="button">Boost</button>
+<button aria-checked="false" class="mode-btn" data-i18n="drive.14" data-i18n-html="1" data-mode="braking" role="radio" type="button">Braking</button>
+</div>
+<div aria-live="polite" class="mode-info">
+<p id="mode-text">The battery powers the electric motor. The engine is off.</p>
+<p class="status" id="mode-status">Battery is discharging</p>
+</div>
+<p class="drive-note" data-i18n="drive.17" data-i18n-html="1">A simplified diagram of a hybrid powertrain, to explain the idea. It is not a drawing of my simulation model.</p>
+</div>
+</div>
+</div>
+<div class="wrap result">
+<div data-reveal="left">
+<p class="big"><span data-count="31">31</span><small>%</small></p>
+<p class="cap" data-i18n="drive.18" data-i18n-html="1">less fuel use than the baseline, in simulation (average of FTP-75 and NEDC).</p>
+</div>
+<div data-reveal="right">
+<h3 data-i18n="drive.19" data-i18n-html="1">Energy management for a hybrid vehicle</h3>
+<p data-i18n="drive.20" data-i18n-html="1">
+            I built an energy management strategy based on dynamic programming in
+            MATLAB and Simulink. It decides when the engine and the electric motor
+            should drive the vehicle. I checked it with software-in-the-loop (SiL) testing.
+          </p>
+<div class="bars" data-bars="">
+<div class="bar-row"><span class="bar-name" data-i18n="drive.21" data-i18n-html="1">Baseline</span><span class="track"><i class="base" style="--w:100%; --i:0"></i></span><span class="bar-val">4.5</span></div>
+<div class="bar-row"><span class="bar-name" data-i18n="drive.22" data-i18n-html="1">My strategy</span><span class="track"><i style="--w:68.9%; --i:1"></i></span><span class="bar-val">3.1</span></div>
+</div>
+<p class="tags" data-i18n="drive.23" data-i18n-html="1">Fuel consumption in l/100 km, average of the FTP-75 and NEDC cycles. Tools: MATLAB, Simulink, dynamic programming.</p>
+</div>
+</div>
+</section>
 <!-- ===================== FIXTURE AGENT ===================== -->
 <section aria-labelledby="agent-title" class="sec" data-i18n-attr="data-label:sec.agent" data-label="Fixture design agent" data-nav="work" data-sec="" id="agent">
 <div class="wrap">
@@ -250,13 +373,19 @@
 </div>
 <div aria-label="Filter projects" class="filters" data-i18n-attr="aria-label:projects.2" id="proj-filters" role="group">
 <button aria-pressed="true" class="fbtn" data-filter="all" data-i18n="projects.3" data-i18n-html="1" type="button">All</button>
-
+<button aria-pressed="false" class="fbtn" data-filter="sim" data-i18n="projects.4" data-i18n-html="1" type="button">Simulation</button>
 <button aria-pressed="false" class="fbtn" data-filter="ml" data-i18n="projects.5" data-i18n-html="1" type="button">Machine learning</button>
 <button aria-pressed="false" class="fbtn" data-filter="emb" data-i18n="projects.6" data-i18n-html="1" type="button">Embedded</button>
 <button aria-pressed="false" class="fbtn" data-filter="res" data-i18n="projects.7" data-i18n-html="1" type="button">Research</button>
 </div>
 <div class="proj-grid" id="proj-grid">
-
+<article class="proj" data-cat="sim" data-reveal="rise" id="proj-hybrid" style="--i:0">
+<p class="kind" data-i18n="projects.8" data-i18n-html="1">Simulation</p>
+<h3 data-i18n="projects.9" data-i18n-html="1">Energy management for a hybrid vehicle</h3>
+<p data-i18n="projects.10" data-i18n-html="1">I built an energy management strategy based on dynamic programming in MATLAB and Simulink. In simulation it reduced fuel consumption by 31%. I checked it with software-in-the-loop (SiL) testing.</p>
+<p class="tags" data-i18n="projects.11" data-i18n-html="1">MATLAB, Simulink, Dynamic programming</p>
+<a class="more" data-i18n="projects.12" data-i18n-html="1" href="#drive">See the interactive demo</a>
+</article>
 <article class="proj" data-cat="ml" data-reveal="rise" id="proj-rl" style="--i:1">
 <p class="kind" data-i18n="projects.13" data-i18n-html="1">Machine learning</p>
 <h3 data-i18n="projects.14" data-i18n-html="1">Fixture design with reinforcement learning</h3>
@@ -552,7 +681,7 @@
 </div>
 <div aria-live="polite" class="toast" id="toast" role="status"></div>
 <button aria-label="Back to top" class="to-top" data-i18n-attr="aria-label:page.5" id="to-top" type="button"><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"></path></svg></button>
-<script src="i18n.js?v=9"></script>
-<script src="script.js?v=9"></script>
+<script src="i18n.js?v=8"></script>
+  <script src="script.js?v=8"></script>
 </body>
 </html>

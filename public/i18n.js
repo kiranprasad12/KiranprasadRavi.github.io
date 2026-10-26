@@ -20,7 +20,7 @@
 "site-header.18": "Schnellsuche",
 "site-header.19": "Strg K",
 "site-header.20": "Menü öffnen",
-"home.4":"Ich arbeite an Reinforcement Learning für die Vorrichtungskonstruktion, eingebetteter Sensorik und Simulation.",
+"home.4": "Ich arbeite an Energiemanagement für Hybridfahrzeuge, Reinforcement Learning für die Vorrichtungskonstruktion, eingebetteter Sensorik und Simulation.",
 "home.5": "Ich arbeite an ",
 "home.7": "Ich studiere Nutzfahrzeugtechnik an der RPTU Kaiserslautern-Landau in Deutschland. Meine Arbeit liegt dort, wo Maschinenbau auf Software und Daten trifft.",
 "home.8": "Hybrid-Demo ansehen",
@@ -243,7 +243,7 @@
 "sec.focus": "Wonach ich suche",
 "sec.contact": "Kontakt",
 "js.phrases": [
-
+"Energiemanagement für Hybridfahrzeuge.",
 "Reinforcement Learning für die Vorrichtungskonstruktion.",
 "eingebettete Sensorik mit einem ESP32.",
 "Simulation, Regelung und Daten."

@@ -76,6 +76,7 @@
     var el = $("#typed");
     if (!el) return;
     var EN = [
+      "hybrid vehicle energy management.",
       "reinforcement learning for fixture design.",
       "embedded sensing with an ESP32.",
       "simulation, control and data."
