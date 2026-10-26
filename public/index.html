@@ -1,480 +1,658 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="blueprint">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Kiran Prasad Ravi</title>
   <meta name="description" content="M.Sc. student in Commercial Vehicle Technology at RPTU Kaiserslautern-Landau. Hybrid vehicles, embedded systems and machine learning.">
+  <meta name="theme-color" content="#0e2747">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%230e2747'/%3E%3Crect x='6' y='6' width='52' height='52' fill='none' stroke='%23ffbf3f' stroke-width='4'/%3E%3Ctext x='32' y='43' font-family='Arial Narrow,Arial,sans-serif' font-weight='700' font-size='30' text-anchor='middle' fill='%23ffbf3f'%3EKR%3C/text%3E%3C/svg%3E">
+  <link rel="preload" href="fonts/barlow-condensed-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="style.css">
-  <script>document.documentElement.classList.add("js");</script>
+  <script>
+    // Apply the saved theme before the page paints, so there is no flash.
+    (function () {
+      var t = null;
+      try { t = localStorage.getItem("kpr-theme"); } catch (e) {}
+      if (["blueprint", "paper", "hivis"].indexOf(t) < 0) t = "blueprint";
+      var r = document.documentElement;
+      r.setAttribute("data-theme", t);
+      r.classList.add("js");
+      if (window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches) r.classList.add("reduce");
+      // If script.js fails to load, fall back to the plain page after 3 seconds.
+      window.addEventListener("load", function () {
+        setTimeout(function () { if (!window.__kpr) r.classList.remove("js"); }, 3000);
+      });
+    })();
+  </script>
 </head>
 <body>
+  <a class="skip" href="#main">Skip to content</a>
+  <div class="progress" id="progress" aria-hidden="true"></div>
 
-  <header class="top">
-    <a class="brand" href="#home">Kiran Prasad Ravi</a>
-    <nav>
-      <a href="#about">About</a>
-      <a href="#path">Path</a>
-      <a href="#projects">Projects</a>
-      <a href="#studies">Studies</a>
-      <a href="#skills">Skills</a>
-      <a href="#focus">Looking for</a>
-      <a href="#contact">Contact</a>
-    </nav>
+  <header class="site-header" id="site-header">
+    <div class="wrap header-in">
+      <a class="brand" href="#home" aria-label="Kiran Prasad Ravi, home">
+        <span class="brand-mark" aria-hidden="true">KR</span><span class="full">Kiran Prasad Ravi</span>
+      </a>
+      <nav class="nav" id="nav" aria-label="Main">
+        <a href="#drive" data-nav="work">Work</a>
+        <a href="#about" data-nav="about">About</a>
+        <a href="#path" data-nav="path">Path</a>
+        <a href="#skills" data-nav="skills">Skills</a>
+        <a href="#code" data-nav="code">Code</a>
+        <a href="#contact" data-nav="contact">Contact</a>
+      </nav>
+      <div class="tools">
+        <div class="themes" role="group" aria-label="Colour theme">
+          <button class="theme-btn" type="button" data-theme-set="blueprint" aria-pressed="true" aria-label="Blueprint theme" title="Blueprint"></button>
+          <button class="theme-btn" type="button" data-theme-set="paper" aria-pressed="false" aria-label="Paper theme" title="Paper"></button>
+          <button class="theme-btn" type="button" data-theme-set="hivis" aria-pressed="false" aria-label="Hi-vis theme" title="Hi-vis"></button>
+        </div>
+        <button class="jump-btn" id="jump-btn" type="button" aria-haspopup="dialog">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
+          <span class="lbl">Quick jump</span><span class="kbd">Ctrl K</span>
+        </button>
+        <button class="menu-btn" id="menu-btn" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="nav"><span></span></button>
+      </div>
+    </div>
   </header>
 
-  <main>
+  <div class="ruler" id="ruler" aria-hidden="true"><div class="ruler-mark" id="ruler-mark"></div></div>
 
-    <!-- HOME -->
-    <section id="home" class="hero">
-      <div class="hero-grid">
-        <div class="hero-text">
-          <p class="eyebrow">Mechanical engineer, M.Sc. student</p>
-          <h1>Kiran Prasad Ravi</h1>
-          <p class="lead">
-            I study Commercial Vehicle Technology at RPTU Kaiserslautern-Landau in Germany.
-            My work sits where mechanical engineering meets software and data.
-          </p>
+  <main id="main">
 
-          <div class="topics" aria-label="Choose a topic">
-            <p class="topics-prompt">Choose a topic to see what I have built:</p>
-            <div class="topics-tabs" role="tablist">
-              <button type="button" role="tab" class="topic-btn active" aria-selected="true" data-topic="powertrain">Vehicle powertrains</button>
-              <button type="button" role="tab" class="topic-btn" aria-selected="false" data-topic="embedded">Embedded systems</button>
-              <button type="button" role="tab" class="topic-btn" aria-selected="false" data-topic="ml">Machine learning</button>
+    <!-- ===================== HOME ===================== -->
+    <section id="home" class="hero" data-sec data-label="Home" data-nav="home">
+      <div class="wrap">
+        <div class="sheet">
+          <div class="hero-grid">
+            <div class="hero-text">
+              <h1><span class="nm">Kiran</span><span class="nm">Prasad</span><span class="nm">Ravi</span></h1>
+              <p class="typed">
+                <span class="sr-only">I work on hybrid vehicle energy management, reinforcement learning for fixture design, embedded sensing and simulation.</span>
+                <span aria-hidden="true"><span class="typed-pre">I work on </span><span class="typed-text" id="typed">hybrid vehicle energy management.</span><span class="caret"></span></span>
+              </p>
+              <p class="lead">
+                I study Commercial Vehicle Technology at RPTU Kaiserslautern-Landau in Germany.
+                My work sits where mechanical engineering meets software and data.
+              </p>
+              <div class="btn-row">
+                <a class="btn btn-primary" href="#drive">Explore the hybrid demo</a>
+                <a class="btn" href="#projects">All projects</a>
+                <a class="btn" href="#contact">Contact me</a>
+              </div>
             </div>
-            <div class="topic-panel active" id="topic-powertrain" role="tabpanel">
-              <p>I built an energy management strategy for a hybrid vehicle in MATLAB and Simulink. In simulation it reduced fuel consumption by 31%.</p>
-              <a href="#proj-hybrid">See the project</a>
+
+            <aside class="titleblock" aria-label="Kiran at a glance">
+              <!-- PHOTO: save your picture as photo.jpg in this folder (public). -->
+              <figure class="photo">
+                <span class="mono" aria-hidden="true">KR</span>
+                <img src="photo.jpg" alt="Portrait of Kiran Prasad Ravi" width="800" height="1000" onerror="this.remove()">
+              </figure>
+              <dl>
+                <div><dt>Studying</dt><dd>M.Sc. Commercial Vehicle Technology</dd></div>
+                <div><dt>University</dt><dd>RPTU Kaiserslautern-Landau</dd></div>
+                <div><dt>Background</dt><dd>B.E. Mechanical Engineering, Anna University, Chennai</dd></div>
+                <div><dt>Based in</dt><dd>Kaiserslautern, Germany</dd></div>
+                <div><dt>Languages</dt><dd>Tamil, English, German</dd></div>
+                <div><dt>Looking for</dt><dd>A mandatory internship, up to 6 months</dd></div>
+              </dl>
+            </aside>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== HYBRID POWERTRAIN (scroll drawing) ===================== -->
+    <section id="drive" class="drive" data-sec data-label="Hybrid powertrain" data-nav="work" aria-labelledby="drive-title">
+      <div class="drive-scroll" id="drive-scroll">
+        <div class="drive-stage" id="drive-stage" data-mode="electric">
+          <div class="wrap drive-head">
+            <div class="sec-head">
+              <h2 id="drive-title">Hybrid powertrain</h2>
+              <span class="dim" aria-hidden="true"></span>
             </div>
-            <div class="topic-panel" id="topic-embedded" role="tabpanel">
-              <p>I used an ESP32 and a thermal sensor to watch a 3D printer at work. I did the wiring myself.</p>
-              <a href="#proj-thermal">See the project</a>
-            </div>
-            <div class="topic-panel" id="topic-ml" role="tabpanel">
-              <p>At FBK, a reinforcement learning agent learns where to place clamps on a workpiece. A finite element model checks each result.</p>
-              <a href="#proj-rl">See the project</a>
-            </div>
+            <p class="drive-hint" id="drive-hint" aria-live="polite">Scroll down to draw the vehicle.</p>
           </div>
 
-          <p class="buttons">
-            <a class="btn primary" href="#projects">See all projects</a>
-            <a class="btn" href="#contact">Get in touch</a>
-          </p>
-        </div>
+          <div class="wrap drive-canvas" id="drive-canvas">
+            <svg id="truck" class="truck" viewBox="0 0 1000 424" preserveAspectRatio="xMidYMid meet" role="img" aria-labelledby="truck-t truck-d">
+              <title id="truck-t">Side view of a hybrid commercial vehicle</title>
+              <desc id="truck-d">Line drawing of a box truck with an engine, an electric motor, a battery and a drive axle. Arrows show where energy flows in the selected driving mode.</desc>
+              <defs>
+                <pattern id="hatch" width="9" height="9" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+                  <line x1="0" y1="0" x2="0" y2="9" class="hatch-line"/>
+                </pattern>
+              </defs>
 
-        <!-- PHOTO: save your picture as "photo.jpg" in the public folder.
-             It will replace the placeholder automatically. -->
-        <figure class="photo">
-          <img src="photo.jpg" alt="Portrait of Kiran Prasad Ravi" onerror="this.remove()">
-          <div class="photo-placeholder">
-            <svg viewBox="0 0 100 100" aria-hidden="true">
-              <circle cx="50" cy="38" r="16"/>
-              <path d="M18 88c0-18 14-30 32-30s32 12 32 30z"/>
+              <!-- ground -->
+              <rect data-s="0" data-e=".12" x="90" y="366" width="840" height="10" fill="url(#hatch)"/>
+              <path class="dr ground" pathLength="1" data-s="0" data-e=".12" d="M90,366 H930"/>
+
+              <!-- chassis -->
+              <path class="dr" pathLength="1" data-s=".08" data-e=".34" d="M140,266 H890"/>
+              <path class="dr faint" pathLength="1" data-s=".1" data-e=".34" d="M140,272 H890"/>
+
+              <!-- cab -->
+              <path class="dr" pathLength="1" data-s=".1" data-e=".42" d="M140,266 V166 Q140,146 162,146 H262 Q276,146 284,160 L312,206 H338 V266"/>
+              <path class="dr" pathLength="1" data-s=".34" data-e=".5" d="M172,166 H256 L280,206 H172 Z"/>
+              <path class="dr faint" pathLength="1" data-s=".36" data-e=".5" d="M230,206 V262"/>
+              <path class="dr faint" pathLength="1" data-s=".36" data-e=".5" d="M140,226 H152 V240 H140"/>
+
+              <!-- cargo box -->
+              <rect class="dr" pathLength="1" data-s=".2" data-e=".52" x="350" y="104" width="540" height="152" rx="4"/>
+              <path class="dr faint" pathLength="1" data-s=".4" data-e=".52" d="M350,128 H890"/>
+              <path class="dr faint" pathLength="1" data-s=".4" data-e=".52" d="M862,128 V256"/>
+
+              <!-- wheel arches -->
+              <path class="dr" pathLength="1" data-s=".25" data-e=".42" d="M151,320 A54,54 0 0 1 259,320"/>
+              <path class="dr" pathLength="1" data-s=".25" data-e=".42" d="M691,320 A54,54 0 0 1 799,320"/>
+
+              <!-- wheels -->
+              <circle class="dr" pathLength="1" data-s=".05" data-e=".3" cx="205" cy="320" r="46"/>
+              <circle class="dr faint" pathLength="1" data-s=".15" data-e=".32" cx="205" cy="320" r="32"/>
+              <circle class="dr" pathLength="1" data-s=".05" data-e=".3" cx="745" cy="320" r="46"/>
+              <circle class="dr faint" pathLength="1" data-s=".15" data-e=".32" cx="745" cy="320" r="32"/>
+              <g data-s=".22" data-e=".34">
+                <g class="spin" style="transform-origin: 205px 320px">
+                  <path class="spoke" d="M205,320 V292"/>
+                  <path class="spoke" d="M205,320 V292" transform="rotate(72 205 320)"/>
+                  <path class="spoke" d="M205,320 V292" transform="rotate(144 205 320)"/>
+                  <path class="spoke" d="M205,320 V292" transform="rotate(216 205 320)"/>
+                  <path class="spoke" d="M205,320 V292" transform="rotate(288 205 320)"/>
+                </g>
+                <g class="spin" style="transform-origin: 745px 320px">
+                  <path class="spoke" d="M745,320 V292"/>
+                  <path class="spoke" d="M745,320 V292" transform="rotate(72 745 320)"/>
+                  <path class="spoke" d="M745,320 V292" transform="rotate(144 745 320)"/>
+                  <path class="spoke" d="M745,320 V292" transform="rotate(216 745 320)"/>
+                  <path class="spoke" d="M745,320 V292" transform="rotate(288 745 320)"/>
+                </g>
+              </g>
+
+              <!-- powertrain parts -->
+              <path class="shaft" pathLength="1" data-s=".52" data-e=".66" d="M420,320 H745"/>
+              <rect class="dr comp" data-comp="engine" pathLength="1" data-s=".52" data-e=".68" x="200" y="206" width="96" height="46"/>
+              <rect class="dr comp" data-comp="motor" pathLength="1" data-s=".56" data-e=".72" x="350" y="298" width="70" height="44"/>
+              <rect class="dr comp" data-comp="battery" pathLength="1" data-s=".6" data-e=".76" x="470" y="276" width="150" height="32"/>
+              <g data-s=".7" data-e=".78">
+                <path class="cell" d="M500,276 V308 M530,276 V308 M560,276 V308 M590,276 V308" stroke="var(--accent)"/>
+                <rect class="soc" x="474" y="280" width="142" height="24"/>
+              </g>
+
+              <!-- energy flows -->
+              <path class="flow" data-flow="e2m" d="M296,229 H368 V298"/>
+              <path class="flow" data-flow="b2m" d="M470,292 H402 V298"/>
+              <path class="flow" data-flow="m2b" d="M402,298 V292 H470"/>
+              <path class="flow" data-flow="m2w" d="M420,320 H745"/>
+              <path class="flow" data-flow="w2m" d="M745,320 H420"/>
+
+              <!-- labels -->
+              <path class="leader" pathLength="1" data-s=".72" data-e=".8" d="M248,206 V136"/>
+              <text class="tr-label" data-s=".74" data-e=".82" x="248" y="128">Engine</text>
+              <path class="leader" pathLength="1" data-s=".72" data-e=".8" d="M385,342 V378"/>
+              <text class="tr-label" data-s=".74" data-e=".82" x="385" y="396">Electric motor</text>
+              <path class="leader" pathLength="1" data-s=".72" data-e=".8" d="M545,276 V246"/>
+              <text class="tr-label" data-s=".74" data-e=".82" x="545" y="238">Battery</text>
+              <path class="leader" pathLength="1" data-s=".72" data-e=".8" d="M745,366 V378"/>
+              <text class="tr-label" data-s=".74" data-e=".82" x="745" y="396">Drive axle</text>
+
+              <!-- dimension line -->
+              <path class="dr faint" pathLength="1" data-s=".76" data-e=".86" d="M140,406 V422 M140,414 H370"/>
+              <path class="dr faint" pathLength="1" data-s=".76" data-e=".86" d="M890,406 V422 M890,414 H660"/>
+              <text class="tr-dim" data-s=".8" data-e=".88" x="515" y="419">Side view, simplified</text>
             </svg>
-            <span>Your photo here</span>
+            <div class="xhair" id="xhair" aria-hidden="true"><span id="xhair-t">x 0  y 0</span></div>
           </div>
-        </figure>
+
+          <div class="wrap drive-ui">
+            <div class="modes" role="radiogroup" aria-label="Driving mode">
+              <button type="button" class="mode-btn" role="radio" aria-checked="true" data-mode="electric">Electric drive</button>
+              <button type="button" class="mode-btn" role="radio" aria-checked="false" data-mode="engine">Engine drive</button>
+              <button type="button" class="mode-btn" role="radio" aria-checked="false" data-mode="boost">Boost</button>
+              <button type="button" class="mode-btn" role="radio" aria-checked="false" data-mode="braking">Braking</button>
+            </div>
+            <div class="mode-info" aria-live="polite">
+              <p id="mode-text">The battery powers the electric motor. The engine is off.</p>
+              <p class="status" id="mode-status">Battery is discharging</p>
+            </div>
+            <p class="drive-note">A simplified diagram of a hybrid powertrain, to explain the idea. It is not a drawing of my simulation model.</p>
+          </div>
+        </div>
       </div>
 
-      <div class="stats" role="list">
-        <div class="stat" role="listitem">
-          <span class="num"><span data-count="31">31</span>%</span>
-          <span class="label">less fuel use in my hybrid vehicle simulation</span>
+      <div class="wrap result">
+        <div data-reveal="left">
+          <p class="big"><span data-count="31">31</span><small>%</small></p>
+          <p class="cap">less fuel use than the baseline, in my simulation.</p>
         </div>
-        <div class="stat" role="listitem">
-          <span class="num" data-count="3">3</span>
-          <span class="label">languages: Tamil, English, German</span>
-        </div>
-        <div class="stat" role="listitem">
-          <span class="num" data-count="2">2</span>
-          <span class="label">degrees: B.E. done, M.Sc. in progress</span>
-        </div>
-        <div class="stat" role="listitem">
-          <span class="num" data-count="2">2</span>
-          <span class="label">work roles: internship and student assistant</span>
-        </div>
-      </div>
-    </section>
-
-    <!-- ABOUT -->
-    <section id="about">
-      <h2>About me</h2>
-      <div class="about-grid">
-        <div>
-          <p>
-            I did my B.E. in Mechanical Engineering at Anna University in Chennai, and I am
-            now doing my Master's in Commercial Vehicle Technology at RPTU in Kaiserslautern.
-            I did an internship at Brakes India Private Limited, and I work as a student
-            assistant at the Chair of Manufacturing Engineering and Operations Management
-            (FBK) at RPTU.
-          </p>
-          <p>
-            At FBK I build a reinforcement learning system for automated fixture design.
-            It combines Python, finite element simulation and a high-performance computing
-            cluster. This is where I built up my Python and machine learning skills.
-          </p>
-          <p>
-            What interests me most is the point where mechanical engineering meets software:
-            simulation, control strategies, sensors and data. My courses include camera systems
-            and 2D image processing for driver assistance, and digital twins.
-          </p>
-        </div>
-
-        <aside class="facts" aria-label="Quick facts">
-          <h3>Quick facts</h3>
-          <dl>
-            <dt>Studying</dt>
-            <dd>M.Sc. Commercial Vehicle Technology, RPTU Kaiserslautern-Landau</dd>
-            <dt>Background</dt>
-            <dd>B.E. Mechanical Engineering, Anna University, Chennai</dd>
-            <dt>Based in</dt>
-            <dd>Kaiserslautern, Germany</dd>
-            <dt>Interested in</dt>
-            <dd>Automotive, ADAS, hybrid and electric drives, embedded systems, machine learning</dd>
-            <dt>Open to</dt>
-            <dd>A mandatory internship (up to 6 months), working student roles, HiWi jobs and thesis topics</dd>
-          </dl>
-        </aside>
-      </div>
-
-      <h3 class="chart-title">Languages</h3>
-      <div class="langs">
-        <div class="lang">
-          <span class="lang-name">Tamil</span>
-          <div class="scale native reveal" style="--w: 100%"><span class="fill"></span></div>
-          <span class="lang-level">Native</span>
-        </div>
-        <div class="lang">
-          <span class="lang-name">English</span>
-          <div class="scale reveal" style="--w: 83.33%"><span class="fill"></span></div>
-          <span class="lang-level">C1</span>
-        </div>
-        <div class="lang">
-          <span class="lang-name">German</span>
-          <div class="scale reveal" style="--w: 50%"><span class="fill"></span></div>
-          <span class="lang-level">B1</span>
-        </div>
-        <div class="lang ticks" aria-hidden="true">
-          <span class="lang-name"></span>
-          <div class="tickrow"><span>A1</span><span>A2</span><span>B1</span><span>B2</span><span>C1</span><span>C2</span></div>
-          <span class="lang-level"></span>
-        </div>
-      </div>
-      <p class="note">Levels follow the European CEFR scale.</p>
-    </section>
-
-    <!-- PATH -->
-    <section id="path">
-      <h2>My path</h2>
-      <div class="tracks">
-        <div class="track">
-          <h3>Education</h3>
-          <ol class="timeline">
-            <li>
-              <span class="dot"></span>
-              <strong>B.E. Mechanical Engineering</strong>
-              <span class="meta">Anna University, Chennai</span>
-            </li>
-            <li class="now">
-              <span class="dot"></span>
-              <strong>M.Sc. Commercial Vehicle Technology</strong>
-              <span class="meta">RPTU Kaiserslautern-Landau, in progress</span>
-            </li>
-          </ol>
-        </div>
-        <div class="track">
-          <h3>Experience</h3>
-          <ol class="timeline">
-            <li>
-              <span class="dot"></span>
-              <strong>Internship</strong>
-              <span class="meta">Brakes India Private Limited</span>
-            </li>
-            <li>
-              <span class="dot"></span>
-              <strong>Student assistant</strong>
-              <span class="meta">FBK chair, RPTU</span>
-              <ul class="bullets">
-                <li>Rebuilt an existing German fixture design codebase in English and extended it</li>
-                <li>Python environment where a PPO agent places locators and clamps on a workpiece</li>
-                <li>Finite element checks with Pynite, with a target of under 0.2 mm displacement</li>
-                <li>Training on the university HPC cluster, code managed in GitLab</li>
-              </ul>
-            </li>
-          </ol>
-        </div>
-      </div>
-    </section>
-
-    <!-- PROJECTS -->
-    <section id="projects">
-      <h2>Projects</h2>
-
-      <article class="feature" id="proj-hybrid">
-        <div class="feature-text">
-          <span class="badge">Simulation</span>
+        <div data-reveal="right">
           <h3>Energy management for a hybrid vehicle</h3>
           <p>
             I built an energy management strategy based on dynamic programming in
-            MATLAB/Simulink. In simulation it reduced fuel consumption by 31%, and I
-            checked it with software-in-the-loop (SiL) testing.
+            MATLAB and Simulink. It decides when the engine and the electric motor
+            should drive the vehicle. I checked it with software-in-the-loop (SiL) testing.
           </p>
-          <p class="tags">MATLAB &middot; Simulink &middot; Dynamic Programming</p>
-        </div>
-        <figure class="chart">
-          <figcaption>Relative fuel consumption in simulation (baseline = 100)</figcaption>
-          <div class="bar-row">
-            <span class="bar-label">Baseline</span>
-            <div class="bar reveal" style="--w: 100%"><span class="fill muted-fill"></span></div>
-            <span class="bar-value">100</span>
+          <div class="bars" data-bars>
+            <div class="bar-row"><span class="bar-name">Baseline</span><span class="track"><i class="base" style="--w:100%; --i:0"></i></span><span class="bar-val">100</span></div>
+            <div class="bar-row"><span class="bar-name">My strategy</span><span class="track"><i style="--w:69%; --i:1"></i></span><span class="bar-val">69</span></div>
           </div>
-          <div class="bar-row">
-            <span class="bar-label">My strategy</span>
-            <div class="bar reveal" style="--w: 69%"><span class="fill"></span></div>
-            <span class="bar-value">69</span>
+          <p class="tags">Fuel consumption in simulation, baseline = 100. Tools: MATLAB, Simulink, dynamic programming.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== FIXTURE AGENT ===================== -->
+    <section id="agent" class="sec" data-sec data-label="Fixture design agent" data-nav="work" aria-labelledby="agent-title">
+      <div class="wrap">
+        <div class="sec-head" data-reveal="head">
+          <h2 id="agent-title">Fixture design with reinforcement learning</h2>
+          <span class="dim" aria-hidden="true"></span>
+        </div>
+        <div class="agent-grid">
+          <div data-reveal="left">
+            <p>
+              At FBK I rebuilt an existing German codebase in English and extended it.
+              It is a Python environment where a PPO agent places locators, clamps and
+              point contacts on a workpiece mesh.
+            </p>
+            <p>
+              A finite element model (Pynite) checks how much the part moves under load.
+              The goal is a maximum displacement below 0.2 mm.
+            </p>
+            <p>
+              Training runs on the university HPC cluster. The system is still at an early
+              training stage, and I am improving it step by step.
+            </p>
+            <p class="tags">Python, PPO, Stable-Baselines3, Gymnasium, Pynite, Gmsh, SLURM</p>
           </div>
-        </figure>
-      </article>
 
-      <article class="feature" id="proj-rl">
-        <div class="feature-text">
-          <span class="badge">Machine learning</span>
-          <h3>Fixture design with reinforcement learning</h3>
-          <p>
-            At FBK I rebuilt an existing German codebase in English and extended it. It is a
-            Python environment where a PPO agent places locators, clamps and point contacts
-            on a workpiece mesh. A finite element model (Pynite) checks how much the part
-            moves under load. The goal is a maximum displacement below 0.2 mm.
-          </p>
-          <p>
-            Training runs on the university HPC cluster. The system is still at an early
-            training stage, and I am improving it step by step.
-          </p>
-          <p class="tags">Python &middot; PPO &middot; Stable-Baselines3 &middot; Gymnasium &middot; Pynite &middot; Gmsh &middot; SLURM</p>
-        </div>
-        <figure class="chart">
-          <figcaption>How one training episode works</figcaption>
-          <ol class="flow">
-            <li><b>Load the part</b><span>CAD model becomes a mesh</span></li>
-            <li><b>Agent acts</b><span>places a locator or clamp</span></li>
-            <li><b>FEM check</b><span>how much does the part move?</span></li>
-            <li><b>Reward</b><span>less movement scores higher</span></li>
-            <li><b>Learn</b><span>PPO updates the agent</span></li>
-          </ol>
-        </figure>
-      </article>
+          <div data-reveal="right" id="rl-demo">
+            <svg id="rl-svg" class="rl-svg" viewBox="0 0 440 300" style="color: var(--accent2)" role="img" aria-label="Illustration of one training episode: a workpiece with a mesh, fixture elements, a check of how much the part moves, and a reward bar.">
+              <defs>
+                <pattern id="mesh" width="20" height="20" patternUnits="userSpaceOnUse">
+                  <path d="M20 0H0V20" fill="none" stroke="currentColor" stroke-opacity=".3" stroke-width="1"/>
+                </pattern>
+                <radialGradient id="heat">
+                  <stop offset="0" style="stop-color: var(--accent)" stop-opacity=".65"/>
+                  <stop offset="1" style="stop-color: var(--accent)" stop-opacity="0"/>
+                </radialGradient>
+              </defs>
+              <g class="rl-g" data-from="1" data-to="5">
+                <rect class="plate" x="50" y="60" width="340" height="140" rx="3"/>
+                <rect class="mesh" x="50" y="60" width="340" height="140"/>
+              </g>
+              <g class="rl-g" data-from="2" data-to="5">
+                <path class="loc" d="M100,200 l-11,18 h22 z"/>
+                <path class="loc" d="M220,200 l-11,18 h22 z"/>
+                <path class="loc" d="M340,200 l-11,18 h22 z"/>
+                <text x="100" y="236" text-anchor="middle">locator</text>
+                <text x="150" y="20" text-anchor="middle">clamp</text>
+                <g class="clamp"><rect class="clamp-body" x="140" y="28" width="20" height="16"/><path d="M150,44 V58 M144,52 L150,60 L156,52"/></g>
+                <g class="clamp"><rect class="clamp-body" x="280" y="28" width="20" height="16"/><path d="M290,44 V58 M284,52 L290,60 L296,52"/></g>
+              </g>
+              <g class="rl-g" data-from="3" data-to="3">
+                <ellipse cx="220" cy="130" rx="150" ry="62" fill="url(#heat)"/>
+                <path class="sag" d="M50,200 Q220,224 390,200"/>
+                <text x="220" y="262" text-anchor="middle">How much does the part move?</text>
+              </g>
+              <g class="rl-g" data-from="4" data-to="4">
+                <text x="220" y="270" text-anchor="middle">Less movement gives a higher reward</text>
+                <rect class="gauge-track" x="90" y="278" width="260" height="12"/>
+                <rect class="gauge" id="rl-gauge" x="90" y="278" width="260" height="12"/>
+              </g>
+              <g class="rl-g" data-from="5" data-to="5">
+                <path class="loop" d="M330,262 H416 V44 H398"/>
+                <path class="loop" d="M406,38 L396,44 L406,50"/>
+                <text x="215" y="266" text-anchor="middle">Update the agent and try again</text>
+              </g>
+            </svg>
 
-      <div class="cards three">
-        <article class="card" id="proj-thermal">
-          <span class="badge">Embedded and sensors</span>
-          <h3>Thermal imaging of 3D printing</h3>
-          <p>
-            A group project for a digital twins course. We used an MLX90640 thermal
-            sensor with an ESP32 to watch a 3D printer at work, and compared different
-            print speeds and wall sizes. I did the wiring myself.
-          </p>
-          <p class="tags">ESP32 &middot; I2C &middot; MLX90640 &middot; PrusaSlicer</p>
-        </article>
-
-        <article class="card">
-          <span class="badge">Research</span>
-          <h3>Digital twins in commercial vehicle technology</h3>
-          <p>
-            A scientific paper I wrote for a scientific writing course. It looks at how
-            digital twins are used in commercial vehicle technology.
-          </p>
-          <p class="tags">Scientific writing &middot; Digital twins</p>
-        </article>
-
-        <article class="card placeholder-card">
-          <span class="badge ghost">Coming soon</span>
-          <h3>Your next project</h3>
-          <p>A place for a new project, with a short text, a picture and the tools you used.</p>
-        </article>
-      </div>
-    </section>
-
-    <!-- STUDIES -->
-    <section id="studies">
-      <h2>Studies</h2>
-      <p class="section-intro">Topics from my Master's courses and what I plan to study next.</p>
-      <div class="cards three">
-        <article class="card">
-          <h3>Camera systems and image processing</h3>
-          <p>2D image processing for driver assistance (ADAS).</p>
-        </article>
-        <article class="card">
-          <h3>Digital twins and experiments</h3>
-          <p>Computational physics and experimental analysis, with a hands-on sensor project.</p>
-        </article>
-        <article class="card">
-          <h3>Data analysis and experiments</h3>
-          <p>Design of experiments and data reconciliation.</p>
-        </article>
-        <article class="card">
-          <h3>Machine learning and statistics</h3>
-          <p>Self-study of clustering, evaluation metrics and probability distributions, next to my reinforcement learning work.</p>
-        </article>
-        <article class="card">
-          <h3>Software and testing basics</h3>
-          <p>Course knowledge of CI/CD pipelines with Jenkins, Bluetooth Low Energy, and flashing with UDS. This is from lectures and courses, not from work projects.</p>
-        </article>
-        <article class="card next">
-          <h3>Next: 3D computer vision</h3>
-          <p>A course I plan to take.</p>
-        </article>
-      </div>
-    </section>
-
-    <!-- SKILLS -->
-    <section id="skills">
-      <h2>Skills and tools</h2>
-      <div class="toolmap">
-        <div class="group">
-          <h3>Programming</h3>
-          <ul class="chips">
-            <li>Python</li><li>NumPy</li><li>Pandas</li><li>MATLAB</li><li>C / C++</li>
-          </ul>
-        </div>
-        <div class="group">
-          <h3>Machine learning</h3>
-          <ul class="chips">
-            <li>Reinforcement learning (PPO)</li><li>Stable-Baselines3</li><li>Gymnasium</li><li>PyTorch</li><li>scikit-learn</li><li>TensorFlow</li>
-          </ul>
-        </div>
-        <div class="group">
-          <h3>Simulation and FEM</h3>
-          <ul class="chips">
-            <li>Simulink</li><li>Ansys Workbench</li><li>Pynite</li><li>Gmsh</li>
-          </ul>
-        </div>
-        <div class="group">
-          <h3>CAD and making</h3>
-          <ul class="chips">
-            <li>SolidWorks</li><li>Fusion 360</li><li>3D printing</li>
-          </ul>
-        </div>
-        <div class="group">
-          <h3>Vehicle and embedded</h3>
-          <ul class="chips">
-            <li>ESP32</li><li>Arduino IDE</li><li>I2C</li><li>CAN bus</li><li>E-bike electronics</li>
-          </ul>
-        </div>
-        <div class="group">
-          <h3>Working tools</h3>
-          <ul class="chips">
-            <li>GitLab</li><li>VS Code</li><li>Jupyter</li><li>Linux basics (WSL)</li><li>HPC with SLURM</li>
-          </ul>
+            <ol class="rl-steps" style="margin-top:18px">
+              <li><button type="button" class="rl-step" data-step="1"><span class="n">1</span><span><b>Load the part</b><small>The CAD model becomes a mesh.</small></span></button></li>
+              <li><button type="button" class="rl-step" data-step="2"><span class="n">2</span><span><b>Agent acts</b><small>It places a locator or a clamp.</small></span></button></li>
+              <li><button type="button" class="rl-step" data-step="3"><span class="n">3</span><span><b>FEM check</b><small>How much does the part move?</small></span></button></li>
+              <li><button type="button" class="rl-step" data-step="4"><span class="n">4</span><span><b>Reward</b><small>Less movement scores higher.</small></span></button></li>
+              <li><button type="button" class="rl-step" data-step="5"><span class="n">5</span><span><b>Learn</b><small>PPO updates the agent.</small></span></button></li>
+            </ol>
+            <div class="rl-ctrl">
+              <button type="button" class="btn" id="rl-play">Play episode</button>
+              <span class="muted small">An illustration of the idea, not real training results.</span>
+            </div>
+          </div>
         </div>
       </div>
     </section>
 
-    <!-- LOOKING FOR -->
-    <section id="focus">
-      <h2>What I am looking for</h2>
-      <div class="cards two">
-        <article class="card">
-          <h3>Roles</h3>
-          <p>A mandatory internship of up to 6 months. I am also open to working student jobs, HiWi positions and thesis topics.</p>
-        </article>
-        <article class="card">
-          <h3>Where</h3>
-          <p>Germany. I am based in Kaiserslautern and open to relocating.</p>
-        </article>
-        <article class="card">
-          <h3>Topics I care about</h3>
-          <ul class="chips">
-            <li>Automotive and commercial vehicles</li><li>ADAS and autonomous driving</li><li>Hybrid and electric drives</li><li>Energy management</li><li>Embedded systems</li><li>Testing and test automation</li><li>Machine learning for vehicles</li>
-          </ul>
-        </article>
-        <article class="card">
-          <h3>What I am working on next</h3>
-          <p>Making my fixture design agent train better and faster, for example by blocking invalid actions (MaskablePPO) and running the FEM check less often. I also plan to take a 3D computer vision course.</p>
-        </article>
+    <!-- ===================== PROJECTS ===================== -->
+    <section id="projects" class="sec" data-sec data-label="All projects" data-nav="work" aria-labelledby="projects-title">
+      <div class="wrap">
+        <div class="sec-head" data-reveal="head">
+          <h2 id="projects-title">Projects</h2>
+          <span class="dim" aria-hidden="true"></span>
+        </div>
+        <div class="filters" role="group" aria-label="Filter projects" id="proj-filters">
+          <button type="button" class="fbtn" data-filter="all" aria-pressed="true">All</button>
+          <button type="button" class="fbtn" data-filter="sim" aria-pressed="false">Simulation</button>
+          <button type="button" class="fbtn" data-filter="ml" aria-pressed="false">Machine learning</button>
+          <button type="button" class="fbtn" data-filter="emb" aria-pressed="false">Embedded</button>
+          <button type="button" class="fbtn" data-filter="res" aria-pressed="false">Research</button>
+        </div>
+
+        <div class="proj-grid" id="proj-grid">
+          <article class="proj" id="proj-hybrid" data-cat="sim" data-reveal="rise" style="--i:0">
+            <p class="kind">Simulation</p>
+            <h3>Energy management for a hybrid vehicle</h3>
+            <p>I built an energy management strategy based on dynamic programming in MATLAB and Simulink. In simulation it reduced fuel consumption by 31%. I checked it with software-in-the-loop (SiL) testing.</p>
+            <p class="tags">MATLAB, Simulink, Dynamic programming</p>
+            <a class="more" href="#drive">See the interactive demo</a>
+          </article>
+
+          <article class="proj" id="proj-rl" data-cat="ml" data-reveal="rise" style="--i:1">
+            <p class="kind">Machine learning</p>
+            <h3>Fixture design with reinforcement learning</h3>
+            <p>A PPO agent learns where to place locators and clamps so that a part moves as little as possible under load. Built at FBK in Python.</p>
+            <p class="tags">Python, PPO, Pynite, PyTorch</p>
+            <a class="more" href="#agent">See how it learns</a>
+          </article>
+
+          <article class="proj" id="proj-thermal" data-cat="emb" data-reveal="rise" style="--i:2">
+            <p class="kind">Embedded and sensors</p>
+            <h3>Thermal imaging of 3D printing</h3>
+            <p>A group project for a digital twins course. We used an MLX90640 thermal sensor with an ESP32 to watch a 3D printer at work, and compared different print speeds and wall sizes. I did the wiring myself.</p>
+            <p class="tags">ESP32, I2C, MLX90640, PrusaSlicer</p>
+          </article>
+
+          <article class="proj" id="proj-paper" data-cat="res" data-reveal="rise" style="--i:3">
+            <p class="kind">Research</p>
+            <h3>Digital twins in commercial vehicle technology</h3>
+            <p>A scientific paper I wrote for a scientific writing course. It looks at how digital twins are used in commercial vehicle technology.</p>
+            <p class="tags">Scientific writing, Digital twins</p>
+          </article>
+
+          <!-- TEMPLATE for a new project: copy this block, remove the comment marks, and change the text.
+               data-cat can be sim, ml, emb or res.
+          <article class="proj" data-cat="sim">
+            <p class="kind">Simulation</p>
+            <h3>Project title</h3>
+            <p>Two or three sentences about what you built and what you learned.</p>
+            <p class="tags">Tool one, Tool two</p>
+          </article>
+          -->
+        </div>
       </div>
     </section>
 
-    <!-- CONTACT -->
-    <section id="contact">
-      <h2>Contact</h2>
-      <div class="contact-box">
-        <p>I am happy to hear from you about internships, working student jobs, thesis topics and projects.</p>
-        <ul class="contact">
-          <li><span>Email</span> <a href="mailto:kiranprasad200112@gmail.com">kiranprasad200112@gmail.com</a></li>
-          <li><span>LinkedIn</span> <a href="https://www.linkedin.com/in/kiran-prasad-ravi-096106244" target="_blank" rel="noopener">kiran-prasad-ravi-096106244</a></li>
-          <li><span>Location</span> Kaiserslautern, Germany</li>
+    <!-- ===================== ABOUT ===================== -->
+    <section id="about" class="sec" data-sec data-label="About" data-nav="about" aria-labelledby="about-title">
+      <div class="wrap">
+        <div class="sec-head" data-reveal="head">
+          <h2 id="about-title">About me</h2>
+          <span class="dim" aria-hidden="true"></span>
+        </div>
+        <div class="about-grid">
+          <div data-reveal="left">
+            <p>
+              I did my B.E. in Mechanical Engineering at Anna University in Chennai, and I am now
+              doing my Master's in Commercial Vehicle Technology at RPTU in Kaiserslautern. I did an
+              internship at Brakes India Private Limited, and I work as a student assistant at the
+              Chair of Manufacturing Engineering and Operations Management (FBK) at RPTU.
+            </p>
+            <p>
+              At FBK I build a reinforcement learning system for automated fixture design. It combines
+              Python, finite element simulation and a high-performance computing cluster. This is where
+              I built up my Python and machine learning skills.
+            </p>
+            <p>
+              What interests me most is the point where mechanical engineering meets software:
+              simulation, control strategies, sensors and data. My courses include camera systems and
+              2D image processing for driver assistance, and digital twins.
+            </p>
+          </div>
+
+          <div class="langs" data-reveal="right">
+            <h3>Languages</h3>
+            <div class="langs" data-bars>
+              <div class="lang"><b>Tamil</b><span class="scale"><i style="--w:100%; --i:0"></i></span><span class="lvl">Native</span></div>
+              <div class="lang"><b>English</b><span class="scale"><i style="--w:83.33%; --i:1"></i></span><span class="lvl">C1</span></div>
+              <div class="lang"><b>German</b><span class="scale"><i style="--w:50%; --i:2"></i></span><span class="lvl">B1</span></div>
+              <div class="ticks" aria-hidden="true"><span></span><span>A1</span><span>A2</span><span>B1</span><span>B2</span><span>C1</span><span>C2</span><span></span></div>
+            </div>
+            <p class="muted small">Levels follow the European CEFR scale.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== PATH ===================== -->
+    <section id="path" class="sec" data-sec data-label="Path" data-nav="path" aria-labelledby="path-title">
+      <div class="wrap">
+        <div class="sec-head" data-reveal="head">
+          <h2 id="path-title">My path</h2>
+          <span class="dim" aria-hidden="true"></span>
+        </div>
+        <div class="tracks">
+          <div data-reveal="left">
+            <h3>Education</h3>
+            <ol class="timeline" data-scrub>
+              <li>
+                <span class="dot" aria-hidden="true"></span>
+                <strong>B.E. Mechanical Engineering</strong>
+                <span class="meta">Anna University, Chennai</span>
+              </li>
+              <li>
+                <span class="dot" aria-hidden="true"></span>
+                <strong>M.Sc. Commercial Vehicle Technology</strong>
+                <span class="meta">RPTU Kaiserslautern-Landau, in progress</span>
+              </li>
+            </ol>
+          </div>
+          <div data-reveal="right">
+            <h3>Experience</h3>
+            <ol class="timeline" data-scrub>
+              <li>
+                <span class="dot" aria-hidden="true"></span>
+                <strong>Internship</strong>
+                <span class="meta">Brakes India Private Limited</span>
+              </li>
+              <li>
+                <span class="dot" aria-hidden="true"></span>
+                <strong>Student assistant</strong>
+                <span class="meta">FBK chair, RPTU</span>
+                <ul>
+                  <li>Rebuilt an existing German fixture design codebase in English and extended it</li>
+                  <li>Python environment where a PPO agent places locators and clamps on a workpiece</li>
+                  <li>Finite element checks with Pynite, with a target of under 0.2 mm displacement</li>
+                  <li>Training on the university HPC cluster, code managed in GitLab</li>
+                </ul>
+              </li>
+            </ol>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== STUDIES ===================== -->
+    <section id="studies" class="sec" data-sec data-label="Studies" data-nav="path" aria-labelledby="studies-title">
+      <div class="wrap">
+        <div class="sec-head" data-reveal="head">
+          <h2 id="studies-title">Studies</h2>
+          <span class="dim" aria-hidden="true"></span>
+        </div>
+        <dl class="rows" data-reveal="rise">
+          <div><dt>Camera systems and image processing</dt><dd>2D image processing for driver assistance (ADAS).</dd></div>
+          <div><dt>Digital twins and experiments</dt><dd>Computational physics and experimental analysis, with a hands-on sensor project.</dd></div>
+          <div><dt>Data analysis and experiments</dt><dd>Design of experiments and data reconciliation.</dd></div>
+          <div><dt>Machine learning and statistics</dt><dd>Self-study of clustering, evaluation metrics and probability distributions, next to my reinforcement learning work.</dd></div>
+          <div><dt>Software and testing basics</dt><dd>Course knowledge of CI/CD pipelines with Jenkins, Bluetooth Low Energy and flashing with UDS. This is from lectures and courses, not from work projects.</dd></div>
+          <div class="next"><dt>3D computer vision</dt><dd>A course I plan to take next.</dd></div>
+        </dl>
+      </div>
+    </section>
+
+    <!-- ===================== SKILLS ===================== -->
+    <section id="skills" class="sec" data-sec data-label="Skills" data-nav="skills" aria-labelledby="skills-title">
+      <div class="wrap">
+        <div class="sec-head" data-reveal="head">
+          <h2 id="skills-title">Skills and tools</h2>
+          <span class="dim" aria-hidden="true"></span>
+        </div>
+        <div class="filters" role="group" aria-label="Filter skills" id="skill-filters">
+          <button type="button" class="fbtn" data-filter="all" aria-pressed="true">All</button>
+          <button type="button" class="fbtn" data-filter="prog" aria-pressed="false">Programming</button>
+          <button type="button" class="fbtn" data-filter="ml" aria-pressed="false">Machine learning</button>
+          <button type="button" class="fbtn" data-filter="sim" aria-pressed="false">Simulation</button>
+          <button type="button" class="fbtn" data-filter="cad" aria-pressed="false">CAD and making</button>
+          <button type="button" class="fbtn" data-filter="emb" aria-pressed="false">Vehicle and embedded</button>
+          <button type="button" class="fbtn" data-filter="tool" aria-pressed="false">Tools</button>
+        </div>
+        <ul class="chips cloud" id="skill-cloud" data-reveal="rise">
+          <li class="chip" data-cat="prog">Python</li>
+          <li class="chip" data-cat="prog">NumPy</li>
+          <li class="chip" data-cat="prog">Pandas</li>
+          <li class="chip" data-cat="prog">MATLAB</li>
+          <li class="chip" data-cat="prog">C / C++</li>
+          <li class="chip" data-cat="ml">Reinforcement learning (PPO)</li>
+          <li class="chip" data-cat="ml">Stable-Baselines3</li>
+          <li class="chip" data-cat="ml">Gymnasium</li>
+          <li class="chip" data-cat="ml">PyTorch</li>
+          <li class="chip" data-cat="ml">scikit-learn</li>
+          <li class="chip" data-cat="ml">TensorFlow</li>
+          <li class="chip" data-cat="sim">Simulink</li>
+          <li class="chip" data-cat="sim">Ansys Workbench</li>
+          <li class="chip" data-cat="sim">Pynite (FEM)</li>
+          <li class="chip" data-cat="sim">Gmsh</li>
+          <li class="chip" data-cat="cad">SolidWorks</li>
+          <li class="chip" data-cat="cad">Fusion 360</li>
+          <li class="chip" data-cat="cad">3D printing</li>
+          <li class="chip" data-cat="emb">ESP32</li>
+          <li class="chip" data-cat="emb">Arduino IDE</li>
+          <li class="chip" data-cat="emb">I2C</li>
+          <li class="chip" data-cat="emb">CAN bus</li>
+          <li class="chip" data-cat="emb">E-bike electronics</li>
+          <li class="chip" data-cat="tool">GitLab</li>
+          <li class="chip" data-cat="tool">GitHub</li>
+          <li class="chip" data-cat="tool">VS Code</li>
+          <li class="chip" data-cat="tool">Jupyter</li>
+          <li class="chip" data-cat="tool">Linux basics (WSL)</li>
+          <li class="chip" data-cat="tool">HPC with SLURM</li>
         </ul>
+      </div>
+    </section>
+
+    <!-- ===================== CODE ===================== -->
+    <section id="code" class="sec" data-sec data-label="Code" data-nav="code" aria-labelledby="code-title">
+      <div class="wrap">
+        <div class="sec-head" data-reveal="head">
+          <h2 id="code-title">Code</h2>
+          <span class="dim" aria-hidden="true"></span>
+        </div>
+        <div class="code-grid">
+          <div class="panel" data-reveal="left">
+            <div class="panel-head">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="5" r="2.2"/><circle cx="6" cy="19" r="2.2"/><circle cx="18" cy="9" r="2.2"/><path d="M6 7.2V16.8M18 11.2C18 14 12 14 6 16.8"/></svg>
+              <div><h3>GitHub</h3><span class="handle">kiranprasad12</span></div>
+            </div>
+            <p class="state" id="gh-state">Loading my repositories from GitHub.</p>
+            <ul class="repo-list" id="gh-repos" hidden></ul>
+            <div class="btn-row">
+              <a class="btn btn-primary" href="https://github.com/kiranprasad12" target="_blank" rel="noopener">Open GitHub profile</a>
+            </div>
+          </div>
+
+          <div class="panel" data-reveal="right">
+            <div class="panel-head">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 7L3 12l5 5M16 7l5 5-5 5M14 4l-4 16"/></svg>
+              <div><h3>GitLab at RPTU</h3><span class="handle">ten22byf</span></div>
+            </div>
+            <p>My university project code is stored on the RPTU GitLab, including the fixture design work from FBK.</p>
+            <p class="state">This server only shows projects to logged-in university users, so a university login is needed to see them.</p>
+            <div class="btn-row">
+              <a class="btn" href="https://gitlab.rhrk.uni-kl.de/ten22byf" target="_blank" rel="noopener">Open GitLab profile</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== LOOKING FOR ===================== -->
+    <section id="focus" class="sec" data-sec data-label="What I am looking for" data-nav="contact" aria-labelledby="focus-title">
+      <div class="wrap">
+        <div class="sec-head" data-reveal="head">
+          <h2 id="focus-title">What I am looking for</h2>
+          <span class="dim" aria-hidden="true"></span>
+        </div>
+        <dl class="rows" data-reveal="rise">
+          <div><dt>Roles</dt><dd>A mandatory internship of up to 6 months. I am also open to working student jobs, HiWi positions and thesis topics.</dd></div>
+          <div><dt>Where</dt><dd>Germany. I am based in Kaiserslautern and open to relocating.</dd></div>
+          <div><dt>Topics I care about</dt><dd><ul class="chips plain-chips"><li class="chip">Automotive and commercial vehicles</li><li class="chip">ADAS and autonomous driving</li><li class="chip">Hybrid and electric drives</li><li class="chip">Energy management</li><li class="chip">Embedded systems</li><li class="chip">Testing and test automation</li><li class="chip">Machine learning for vehicles</li></ul></dd></div>
+          <div><dt>Working on next</dt><dd>Making my fixture design agent train better and faster, for example by blocking invalid actions (MaskablePPO) and running the FEM check less often.</dd></div>
+        </dl>
+      </div>
+    </section>
+
+    <!-- ===================== CONTACT ===================== -->
+    <section id="contact" class="sec" data-sec data-label="Contact" data-nav="contact" aria-labelledby="contact-title">
+      <div class="wrap">
+        <div class="sec-head" data-reveal="head">
+          <h2 id="contact-title">Contact</h2>
+          <span class="dim" aria-hidden="true"></span>
+        </div>
+        <div class="contact-grid">
+          <div data-reveal="left">
+            <p>I am happy to hear from you about internships, working student jobs, thesis topics and projects.</p>
+            <ul class="links">
+              <li><span>Email</span><div><a href="mailto:kiranprasad200112@gmail.com" id="email-link">kiranprasad200112@gmail.com</a><button type="button" class="copy-btn" id="copy-email">Copy</button></div></li>
+              <li><span>LinkedIn</span><a href="https://www.linkedin.com/in/kiran-prasad-ravi-096106244" target="_blank" rel="noopener">kiran-prasad-ravi-096106244</a></li>
+              <li><span>GitHub</span><a href="https://github.com/kiranprasad12" target="_blank" rel="noopener">github.com/kiranprasad12</a></li>
+              <li><span>GitLab</span><a href="https://gitlab.rhrk.uni-kl.de/ten22byf" target="_blank" rel="noopener">gitlab.rhrk.uni-kl.de/ten22byf</a></li>
+              <li><span>Location</span><span style="color: var(--ink)">Kaiserslautern, Germany</span></li>
+            </ul>
+            <!-- CV button: save your CV as cv.pdf in this folder (public), then delete the comment marks around the link below.
+            <a class="btn" href="cv.pdf" download>Download CV (PDF)</a>
+            -->
+          </div>
+
+          <form class="form" id="contact-form" data-reveal="right" novalidate>
+            <h3>Send a message</h3>
+            <div class="field"><label for="f-name">Your name</label><input id="f-name" name="name" type="text" autocomplete="name"></div>
+            <div class="field">
+              <label for="f-topic">What is it about?</label>
+              <select id="f-topic" name="topic">
+                <option>Internship</option>
+                <option>Working student job</option>
+                <option>HiWi position</option>
+                <option>Thesis topic</option>
+                <option>Something else</option>
+              </select>
+            </div>
+            <div class="field"><label for="f-msg">Message</label><textarea id="f-msg" name="message"></textarea></div>
+            <button type="submit" class="btn btn-primary">Open in my email app</button>
+            <p class="hint" id="form-hint">This opens your email app with the message filled in. Nothing is sent from this page.</p>
+          </form>
+        </div>
       </div>
     </section>
   </main>
 
-  <footer>
-    <p>&copy; <span id="year">2026</span> Kiran Prasad Ravi</p>
+  <footer class="site-footer">
+    <div class="wrap">
+      <p>&copy; <span id="year">2026</span> Kiran Prasad Ravi</p>
+      <p>Plain HTML, CSS and JavaScript. Hosted on GitHub Pages. Font: Barlow.</p>
+    </div>
   </footer>
 
-  <script>
-    document.getElementById("year").textContent = new Date().getFullYear();
+  <div class="palette" id="palette" hidden role="dialog" aria-modal="true" aria-label="Quick jump">
+    <div class="palette-box">
+      <input id="pal-input" type="text" placeholder="Jump to a section or run an action" autocomplete="off" spellcheck="false" aria-controls="pal-list">
+      <ul class="palette-list" id="pal-list" role="listbox"></ul>
+      <p class="palette-empty" id="pal-empty" hidden>Nothing matches. Try a section name such as skills or contact.</p>
+    </div>
+  </div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <button class="to-top" id="to-top" type="button" aria-label="Back to top"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>
 
-    // Topic selector in the hero
-    (function () {
-      var buttons = document.querySelectorAll(".topic-btn");
-      var panels = document.querySelectorAll(".topic-panel");
-      buttons.forEach(function (btn, i) {
-        function select() {
-          buttons.forEach(function (b) { b.classList.remove("active"); b.setAttribute("aria-selected", "false"); });
-          panels.forEach(function (p) { p.classList.remove("active"); });
-          btn.classList.add("active");
-          btn.setAttribute("aria-selected", "true");
-          document.getElementById("topic-" + btn.dataset.topic).classList.add("active");
-        }
-        btn.addEventListener("click", select);
-        btn.addEventListener("keydown", function (e) {
-          var n = null;
-          if (e.key === "ArrowRight") n = buttons[(i + 1) % buttons.length];
-          if (e.key === "ArrowLeft") n = buttons[(i - 1 + buttons.length) % buttons.length];
-          if (n) { n.focus(); n.click(); }
-        });
-      });
-    })();
-
-    // Count up the numbers in the stat tiles
-    (function () {
-      var nums = document.querySelectorAll("[data-count]");
-      var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      if (reduce || !("IntersectionObserver" in window)) return;
-      var io = new IntersectionObserver(function (entries) {
-        entries.forEach(function (e) {
-          if (!e.isIntersecting) return;
-          io.unobserve(e.target);
-          var el = e.target, end = parseInt(el.dataset.count, 10), start = null;
-          function step(t) {
-            if (start === null) start = t;
-            var k = Math.min((t - start) / 900, 1);
-            el.textContent = Math.round(end * (1 - Math.pow(1 - k, 3)));
-            if (k < 1) requestAnimationFrame(step);
-          }
-          requestAnimationFrame(step);
-        });
-      }, { threshold: 0.6 });
-      nums.forEach(function (el) { io.observe(el); });
-    })();
-
-    // Animate bars when they scroll into view
-    (function () {
-      var items = document.querySelectorAll(".reveal");
-      var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      if (reduce || !("IntersectionObserver" in window)) {
-        items.forEach(function (el) { el.classList.add("in-view"); });
-        return;
-      }
-      var io = new IntersectionObserver(function (entries) {
-        entries.forEach(function (e) {
-          if (e.isIntersecting) { e.target.classList.add("in-view"); io.unobserve(e.target); }
-        });
-      }, { threshold: 0.4 });
-      items.forEach(function (el) { io.observe(el); });
-    })();
-  </script>
+  <script src="script.js"></script>
 </body>
 </html>
