@@ -426,7 +426,7 @@
           requestAnimationFrame(f);
         });
       });
-    }, { threshold: 0.18, rootMargin: "0px 0px -6% 0px" });
+    }, { threshold: 0, rootMargin: "0px 0px -8% 0px" });
     $$("[data-bars]").forEach(function (b) {
       if (vals.some(function (o) { return b.contains(o.el); })) {
         vals.forEach(function (o) { if (b.contains(o.el)) o.el.textContent = num(0, o.d); });

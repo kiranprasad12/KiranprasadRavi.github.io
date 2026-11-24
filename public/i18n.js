@@ -291,7 +291,7 @@
 "js.mode.braking.status": "Die Batterie lädt sich",
 "js.hint.start": "Nach unten scrollen, um das Fahrzeug zu zeichnen.",
 "js.hint.live": "Wähle einen Fahrmodus, um zu sehen, wohin die Energie fließt.",
-"js.hint.keep": "Weiter scrollen.",
+"js.hint.draw": "Das Fahrzeug wird gezeichnet.",
 "js.rl.play": "Episode abspielen",
 "js.rl.stop": "Stopp",
 "js.th.pause": "Pause",

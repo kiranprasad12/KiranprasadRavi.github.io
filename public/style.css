@@ -274,12 +274,27 @@ button { font: inherit; color: inherit; }
 
 /* ---------- Hybrid powertrain (scroll-driven drawing) ---------- */
 .drive { padding-top: 0; margin-top: clamp(48px, 7vw, 96px); }
-.drive-scroll { position: relative; height: calc(100vh - var(--header-h) + 170vh); height: calc(100svh - var(--header-h) + 170svh); }
-.drive-stage { position: sticky; top: var(--header-h); height: calc(100vh - var(--header-h)); height: calc(100svh - var(--header-h)); min-height: 540px; display: flex; flex-direction: column; padding: clamp(14px, 3vh, 30px) 0 14px; }
+/* The demo sits in the normal page flow and draws itself when it comes into view. When the
+   whole demo fits on the screen, script.js adds .is-pin: the stage then stays in place while
+   you scroll and the drawing follows the scroll. */
+.drive { --foot-h: 0px; --pin-travel: 110vh; --stage-h: calc(100vh - var(--header-h) - var(--foot-h)); }
+@supports (height: 100svh) { .drive { --pin-travel: 110svh; --stage-h: calc(100svh - var(--header-h) - var(--foot-h)); } }
+@media (max-width: 760px) { .drive { --pin-travel: 90vh; } }
+@supports (height: 100svh) { @media (max-width: 760px) { .drive { --pin-travel: 90svh; } } }
+.drive-scroll { position: relative; }
+.drive-stage { display: flex; flex-direction: column; padding: clamp(14px, 3vh, 30px) 0 14px; }
+.drive.is-pin .drive-scroll { height: calc(var(--stage-h) + var(--pin-travel)); }
+.drive.is-pin .drive-stage { position: sticky; top: var(--header-h); height: var(--stage-h); }
 .drive-head { flex: none; }
 .drive-head .sec-head { margin-bottom: 8px; }
 .drive-hint { margin: 0; color: var(--muted); min-height: 1.6em; }
-.drive-canvas { position: relative; flex: 1; min-height: 0; margin-block: 6px; cursor: crosshair; }
+.drive-sub { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 16px; }
+.drive-meter { display: inline-flex; align-items: center; gap: 8px; font: 500 11px/1 var(--font-mono); color: var(--muted); font-variant-numeric: tabular-nums; transition: opacity .5s; }
+.drive-meter i { position: relative; width: 84px; height: 2px; background: var(--line); }
+.drive-meter i::after { content: ""; position: absolute; inset: 0; background: var(--accent); transform-origin: left; transform: scaleX(var(--dp, 0)); }
+.drive-stage.is-live .drive-meter, html.reduce .drive-meter, html:not(.js) .drive-meter { opacity: 0; }
+.drive-canvas { position: relative; height: min(clamp(190px, 44vw, 440px), 62vh); margin-block: 6px; cursor: crosshair; }
+.drive.is-pin .drive-canvas { flex: 1; height: auto; min-height: 0; }
 .truck { position: absolute; inset: 0; width: 100%; height: 100%; display: block; overflow: visible; }
 .truck .dr { fill: none; stroke: var(--ink); stroke-width: 2.4; stroke-linejoin: round; stroke-dasharray: 1; stroke-dashoffset: 0; }
 .truck .dr.faint { stroke: var(--line-strong); stroke-width: 1.4; }
@@ -539,14 +554,10 @@ html.theme-fade, html.theme-fade * { transition: background-color .45s, color .4
   .ticks { grid-template-columns: 62px repeat(6, 1fr) 46px; }
   .links li { grid-template-columns: 1fr; gap: 2px; }
   .titleblock dl > div { grid-template-columns: 84px 1fr; }
-  .drive-stage { min-height: 600px; }
   .typed { min-height: 2.5em; }
 }
 
 /* ---------- Reduced motion and no-JS: show the finished drawing, no scroll pinning ---------- */
-html:not(.js) .drive-scroll, html.reduce .drive-scroll { height: auto; }
-html:not(.js) .drive-stage, html.reduce .drive-stage { position: static; height: auto; min-height: 0; }
-html:not(.js) .drive-canvas, html.reduce .drive-canvas { flex: none; height: clamp(240px, 42vw, 440px); }
 html.reduce { scroll-behavior: auto; }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
@@ -1014,3 +1025,34 @@ html.wire #bg-canvas { opacity: .3; }
 @media (max-width: 1040px) { .rig .rig-svg { transform: scale(.9); transform-origin: 50% 100%; } }
 @media (max-width: 640px) { .site-footer { padding-bottom: 88px; } }
 :root[data-theme="hivis"] .dim-v { bottom: calc(50% + 6px); }
+
+/* ---------- Seamless pass: hybrid demo on phones, reveals, taps ---------- */
+@media (min-width: 1200px) and (hover: hover) and (pointer: fine) { html.has-sbar .drive { --foot-h: 26px; } }
+@media (max-width: 640px) {
+  .drive-canvas.wrap { width: 100%; }
+  .truck .dimln, .truck .tr-dim { display: none; }
+  .truck .tr-label { font-size: 24px; }
+}
+/* On phones, blocks rise into place instead of sliding in from the side */
+@media (max-width: 760px) {
+  .js [data-reveal="left"], .js [data-reveal="right"] { transform: translateY(22px); }
+}
+a, button, label, [role="radio"] { -webkit-tap-highlight-color: transparent; }
+.cursor-ring.is-cad { opacity: 0; }
+/* The hint changes length while the truck is drawn: keep its space fixed so nothing below it moves */
+@media (max-width: 1040px) {
+  .drive-sub { display: block; }
+  .drive-hint { min-height: 3.2em; }
+  .drive-meter { display: flex; margin-top: 2px; }
+}
+
+/* Drafting grid as a separate moving layer (script.js), used instead of body::before when JS runs */
+.grid-layer { position: fixed; left: 0; right: 0; top: 0; z-index: -2; height: calc(100vh + 120px); pointer-events: none; will-change: transform;
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px),
+    linear-gradient(var(--grid-major) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-major) 1px, transparent 1px);
+  background-size: 24px 24px, 24px 24px, 120px 120px, 120px 120px; }
+@supports (height: 100lvh) { .grid-layer { height: calc(100lvh + 120px); } }
+html.has-grid-layer body::before { display: none; }

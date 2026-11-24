@@ -70,7 +70,8 @@
   function setup() {
     small = mqSmall.matches;
     dpr = Math.min(window.devicePixelRatio || 1, small ? 1.5 : 2);
-    var w = window.innerWidth, h = window.innerHeight;
+    // Cap the height: some page viewers stretch the frame to the full page height.
+    var w = window.innerWidth, h = Math.min(window.innerHeight, 2400);
     // On phones the address bar changes the height while scrolling. Ignore small changes.
     if (W && small && Math.abs(w - W) < 2 && Math.abs(h - H) < 140) return;
     var oldW = W || w, oldH = H || h;

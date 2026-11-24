@@ -96,10 +96,26 @@
     var phrases = T("js.phrases", EN);
     var pi = 0, ci = phrases[0].length, deleting = true;
     el.textContent = phrases[0];
+    // Keep the line steady while it types: reserve room for the longest phrase at this width,
+    // so the text and buttons below never jump when a phrase wraps onto a second line.
+    var line = el.closest ? el.closest(".typed") : null;
+    function reserve() {
+      if (!line) return;
+      var keep = el.textContent, max = 0;
+      line.style.minHeight = "";
+      phrases.forEach(function (ph) { el.textContent = ph; max = Math.max(max, line.offsetHeight); });
+      el.textContent = keep;
+      line.style.minHeight = max + "px";
+    }
+    reserve();
+    if (doc.fonts && doc.fonts.ready) doc.fonts.ready.then(reserve);
+    var rt = 0;
+    window.addEventListener("resize", function () { clearTimeout(rt); rt = setTimeout(reserve, 150); });
     onLang(function () {
       phrases = T("js.phrases", EN);
       pi = 0; ci = phrases[0].length; deleting = true;
       el.textContent = phrases[0];
+      reserve();
     });
     if (reduce) return;
     function step() {
@@ -142,11 +158,12 @@
       return;
     }
     $$("[data-count]").forEach(function (el) { el.textContent = "0"; });
+    // Reveal as soon as the top edge is a little inside the screen, so tall blocks never leave a blank gap.
     var io = new IntersectionObserver(function (entries) {
       entries.forEach(function (e) {
         if (e.isIntersecting) { show(e.target); io.unobserve(e.target); }
       });
-    }, { threshold: 0.18, rootMargin: "0px 0px -6% 0px" });
+    }, { threshold: 0, rootMargin: "0px 0px -8% 0px" });
     els.forEach(function (el) { io.observe(el); });
   })();
 
@@ -225,6 +242,10 @@
   });
 
   if (driveScroll && stage && truck) {
+    var driveSec = $("#drive"), canvas = $("#drive-canvas"), meter = $("#drive-meter");
+    var meterTxt = meter ? $("b", meter) : null;
+    // Phones get a tighter crop of the same drawing, so the truck is larger.
+    var VB_WIDE = [0, 0, 1000, 424], VB_TIGHT = [84, 96, 852, 312];
     $$("[data-s]", truck).forEach(function (el) {
       driveParts.push({
         el: el,
@@ -234,16 +255,16 @@
       });
     });
 
-    modeBtns.forEach(function (b, i) {
-      b.addEventListener("click", function () { setMode(b.getAttribute("data-mode")); });
-      b.addEventListener("keydown", function (e) {
-        var n = null;
-        if (e.key === "ArrowRight" || e.key === "ArrowDown") n = modeBtns[(i + 1) % modeBtns.length];
-        if (e.key === "ArrowLeft" || e.key === "ArrowUp") n = modeBtns[(i - 1 + modeBtns.length) % modeBtns.length];
-        if (n) { e.preventDefault(); n.focus(); n.click(); }
-      });
-    });
-    setMode("electric");
+    var shown = 0, goal = 0, pin = false, forced = false, autoGo = false, raf = 0, last = 0, idle = 0, hintState = "";
+    var lastW = window.innerWidth, lastH = window.innerHeight;
+
+    function setHint(state) {
+      if (!hint || state === hintState) return;
+      hintState = state;
+      hint.textContent = state === "live" ? T("js.hint.live", "Choose a driving mode to see where the energy goes.")
+        : state === "start" ? T("js.hint.start", "Scroll down to draw the vehicle.")
+        : T("js.hint.draw", "Drawing the vehicle.");
+    }
 
     window.applyDrive = function (p) {
       driveParts.forEach(function (o) {
@@ -261,33 +282,120 @@
       if (nowLive !== live) {
         live = nowLive;
         stage.classList.toggle("is-live", live);
-        modeBtns.forEach(function (b) { b.disabled = !live; });
       }
-      if (hint) {
-        hint.textContent = p < 0.02 ? T("js.hint.start", "Scroll down to draw the vehicle.")
-          : (live ? T("js.hint.live", "Choose a driving mode to see where the energy goes.") : T("js.hint.keep", "Keep scrolling."));
+      setHint(live ? "live" : (p < 0.02 && pin ? "start" : "draw"));
+      if (meter) {
+        meter.style.setProperty("--dp", p.toFixed(3));
+        if (meterTxt) meterTxt.textContent = Math.round(p * 100) + "%";
       }
     };
-    modeBtns.forEach(function (b) { b.disabled = true; });
-    window.driveProgress = function () {
+
+    // The mode buttons always work. If the drawing is not finished yet, a click finishes it.
+    modeBtns.forEach(function (b, i) {
+      b.addEventListener("click", function () {
+        if (shown < 1) { forced = true; window.driveKick(); }
+        setMode(b.getAttribute("data-mode"));
+      });
+      b.addEventListener("keydown", function (e) {
+        var n = null;
+        if (e.key === "ArrowRight" || e.key === "ArrowDown") n = modeBtns[(i + 1) % modeBtns.length];
+        if (e.key === "ArrowLeft" || e.key === "ArrowUp") n = modeBtns[(i - 1 + modeBtns.length) % modeBtns.length];
+        if (n) { e.preventDefault(); n.focus(); n.click(); }
+      });
+    });
+    setMode("electric");
+
+    function footH() { var sb = $(".sbar"); return sb && sb.offsetHeight ? sb.offsetHeight : 0; }
+    // Pin the stage only when the whole demo fits on the screen. Otherwise it stays in the normal
+    // page flow and draws itself when it comes into view (small phones, landscape, short windows).
+    function decidePin() {
+      var vb = window.innerWidth <= 640 ? VB_TIGHT : VB_WIDE;
+      truck.setAttribute("viewBox", vb.join(" "));
+      if (reduce) { pin = false; driveSec.classList.remove("is-pin"); return; }
+      var avail = window.innerHeight - headerH() - footH();
+      var head = $(".drive-head", stage).offsetHeight, ui = $(".drive-ui", stage).offsetHeight;
+      var drawH = canvas.clientWidth * vb[3] / vb[2];
+      // the drawing may shrink to fit, but it should keep at least about 240 px (less on phones)
+      var need = head + ui + Math.max(130, Math.min(drawH * 0.82, 240)) + 48;
+      var on = avail >= need && avail >= 380;
+      if (on !== pin) { pin = on; driveSec.classList.toggle("is-pin", on); }
+      if (!pin && canvasVisible()) autoGo = true;
+    }
+    function canvasVisible() {
+      var r = canvas.getBoundingClientRect();
+      var vis = Math.min(r.bottom, window.innerHeight) - Math.max(r.top, headerH());
+      return r.height > 0 && vis / r.height >= 0.6;
+    }
+    // Pinned: the drawing starts while the section scrolls into view and is done a little
+    // after the stage has pinned. It never draws backwards.
+    function scrollGoal() {
+      var r = driveScroll.getBoundingClientRect(), vh = window.innerHeight;
+      var travel = Math.max(0, r.height - stage.offsetHeight);
+      var startTop = vh * 0.85, endTop = headerH() - travel * 0.55;
+      return clamp((startTop - r.top) / Math.max(1, startTop - endTop), 0, 1);
+    }
+    function frame(t) {
+      raf = 0;
+      var dt = last ? Math.min(0.05, (t - last) / 1000) : 1 / 60;
+      last = t;
+      if (forced || reduce) goal = 1;
+      else if (pin) goal = Math.max(goal, scrollGoal());
+      else if (autoGo) goal = 1;
+      if (shown < goal) {
+        if (pin && !forced) shown += (goal - shown) * (1 - Math.exp(-9 * dt)) + dt * 0.02;
+        else shown += dt / (forced ? 0.9 : 1.8);
+        if (shown > goal) shown = goal;
+        window.applyDrive(shown);
+      }
+      if (shown < goal) raf = requestAnimationFrame(frame); else last = 0;
+    }
+    window.driveKick = function () {
+      if (!raf) raf = requestAnimationFrame(frame);
+      clearTimeout(idle);
+      // When you stop scrolling with the drawing in view, it finishes by itself.
+      if (shown < 1 && !reduce) idle = setTimeout(function () { if (canvasVisible()) { forced = true; window.driveKick(); } }, 1300);
+    };
+    window.drivePinnedNow = function () {
+      if (!pin) return false;
       var r = driveScroll.getBoundingClientRect();
-      var travel = r.height - stage.offsetHeight;
-      if (travel <= 40) return 1;
-      return clamp((headerH() - r.top) / travel, 0, 1);
+      return r.top <= headerH() + 1 && r.bottom >= window.innerHeight - footH() - 2;
     };
-    window.applyDrive(window.driveProgress());
+    if ("IntersectionObserver" in window) {
+      new IntersectionObserver(function (es) {
+        es.forEach(function (e) { if (e.isIntersecting && !pin) { autoGo = true; window.driveKick(); } });
+      }, { threshold: 0.35 }).observe(canvas);
+    } else {
+      autoGo = true;
+    }
+    onLang(function () { hintState = ""; window.applyDrive(shown); });
+
+    decidePin();
+    if (reduce) { shown = goal = 1; }
+    window.applyDrive(shown);
+    window.driveKick();
+    // Phones change the height when the address bar slides in or out: only react to real changes.
+    window.addEventListener("resize", function () {
+      var w = window.innerWidth, h = window.innerHeight;
+      if (w === lastW && Math.abs(h - lastH) < 150) return;
+      lastW = w; lastH = h;
+      decidePin();
+      window.driveKick();
+    });
+    window.addEventListener("load", function () { setTimeout(function () { decidePin(); window.driveKick(); }, 60); });
 
     /* CAD-style cursor over the drawing */
-    var canvas = $("#drive-canvas"), xh = $("#xhair"), xt = $("#xhair-t");
+    var xh = $("#xhair"), xt = $("#xhair-t");
     if (canvas && xh && window.matchMedia && matchMedia("(pointer: fine)").matches) {
       canvas.addEventListener("pointermove", function (e) {
         var r = canvas.getBoundingClientRect();
         var x = e.clientX - r.left, y = e.clientY - r.top;
         xh.style.setProperty("--cx", x + "px");
         xh.style.setProperty("--cy", y + "px");
-        var sc = Math.min(r.width / 1000, r.height / 424);
-        var ox = (r.width - 1000 * sc) / 2, oy = (r.height - 424 * sc) / 2;
-        if (xt) xt.textContent = "x " + Math.round((x - ox) / sc) + "  y " + Math.round((y - oy) / sc);
+        var vb = truck.viewBox && truck.viewBox.baseVal;
+        var bx = vb ? vb.x : 0, by = vb ? vb.y : 0, bw = vb && vb.width ? vb.width : 1000, bh = vb && vb.height ? vb.height : 424;
+        var sc = Math.min(r.width / bw, r.height / bh);
+        var ox = (r.width - bw * sc) / 2, oy = (r.height - bh * sc) / 2;
+        if (xt) xt.textContent = "x " + Math.round((x - ox) / sc + bx) + "  y " + Math.round((y - oy) / sc + by);
         xh.classList.add("on");
       });
       canvas.addEventListener("pointerleave", function () { xh.classList.remove("on"); });
@@ -337,7 +445,8 @@
     onLang(function () { if (play) play.textContent = timer ? T("js.rl.stop", "Stop") : T("js.rl.play", "Play episode"); });
     if (play) play.textContent = T("js.rl.play", "Play episode");
 
-    var demo = $("#rl-demo");
+    // Watch the drawing itself (not the whole block), so it also starts on short screens.
+    var demo = $("#rl-svg") || $("#rl-demo");
     if (demo && !reduce && "IntersectionObserver" in window) {
       var io = new IntersectionObserver(function (entries) {
         entries.forEach(function (e) {
@@ -348,12 +457,24 @@
     }
   })();
 
+  /* ---------- Drafting grid that drifts with the scroll ---------- */
+  // It is its own layer that only moves. Changing a value on the whole page each frame would make
+  // the browser restyle every element while scrolling.
+  var gridLayer = null, photoBox = $(".hero .photo"), lastPhotoY = -1;
+  if (!reduce) {
+    gridLayer = doc.createElement("div");
+    gridLayer.className = "grid-layer";
+    gridLayer.setAttribute("aria-hidden", "true");
+    doc.body.insertBefore(gridLayer, doc.body.firstChild);
+    root.classList.add("has-grid-layer");
+  }
+
   /* ---------- Scroll updates: progress bar, ruler, spy, timelines, parallax ---------- */
   var progress = $("#progress"), ruler = $("#ruler"), rulerMark = $("#ruler-mark"), toTop = $("#to-top");
   var secs = $$("[data-sec]");
   var navLinks = $$("#nav a");
   var timelines = $$("[data-scrub]");
-  var rulerH = 0, ticking = false;
+  var rulerH = 0, ticking = false, lastY = window.pageYOffset || 0, goingUp = false;
 
   function updateTimelines() {
     var vh = window.innerHeight;
@@ -381,10 +502,21 @@
     var max = Math.max(1, root.scrollHeight - window.innerHeight);
     var prog = clamp(y / max, 0, 1);
     if (progress) progress.style.transform = "scaleX(" + prog + ")";
-    if (!reduce) root.style.setProperty("--sy", String(y));
+    if (gridLayer) gridLayer.style.transform = "translate3d(0," + (-((y * 0.2) % 120)).toFixed(1) + "px,0)";
+    if (photoBox && !reduce) {
+      var py = Math.min(Math.round(y), 800);                 // the photo shift stops at 28 px anyway
+      if (py !== lastPhotoY) { lastPhotoY = py; photoBox.style.setProperty("--sy", String(py)); }
+    }
     if (rulerMark && rulerH) rulerMark.style.transform = "translateY(" + Math.round(prog * rulerH) + "px)";
-    if (toTop) toTop.classList.toggle("show", y > 900);
-    if (window.applyDrive) window.applyDrive(reduce ? 1 : window.driveProgress());
+    // The back-to-top button steps aside while the hybrid demo fills the screen. On narrow screens,
+    // where it would cover text, it also hides while you scroll down and comes back when you scroll up.
+    if (toTop) {
+      if (y > lastY + 4) goingUp = false; else if (y < lastY - 4) goingUp = true;
+      var roomy = window.innerWidth >= 1200;
+      toTop.classList.toggle("show", y > 900 && (roomy || goingUp) && !(window.drivePinnedNow && window.drivePinnedNow()));
+    }
+    lastY = y;
+    if (window.driveKick) window.driveKick();
     updateTimelines();
     updateSpy();
   }

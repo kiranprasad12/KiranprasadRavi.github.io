@@ -171,6 +171,8 @@
       var text = t.closest && t.closest("input, textarea");
       var link = t.closest && t.closest("a, button, [role='radio'], select, label, .notch, .ruler");
       ring.classList.toggle("is-text", !!text);
+      // over the truck drawing the CAD crosshair takes over
+      ring.classList.toggle("is-cad", !!(t.closest && t.closest(".drive-canvas")));
       ring.classList.toggle("is-link", !!link && !text);
       if (t !== lastT) {
         lastT = t;
