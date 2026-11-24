@@ -23,6 +23,25 @@
   function safeSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
   function headerH() { return parseInt(getComputedStyle(root).getPropertyValue("--header-h"), 10) || 64; }
 
+  /* ---------- Sizes and positions, measured when the page changes, not on every frame ---------- */
+  // Asking for a position right after something on the page has moved makes the browser redo its
+  // layout in the middle of a frame, which makes scrolling stutter on phones. So the scroll code
+  // reads these stored numbers. They are measured again when the window or the page changes size.
+  var geo = { y: window.pageYOffset || 0, vw: window.innerWidth, vh: window.innerHeight, max: 1, hh: 64, fh: 0 };
+  var geoFns = [];
+  // Position in the page without transforms, so a card that is still sliding in does not count
+  function docTop(el) { var t = 0; while (el) { t += el.offsetTop; el = el.offsetParent; } return t; }
+  function measure() {
+    geo.y = window.pageYOffset || 0;
+    geo.vw = window.innerWidth; geo.vh = window.innerHeight;
+    geo.max = Math.max(1, root.scrollHeight - geo.vh);
+    geo.hh = headerH();
+    var sb = $(".sbar");
+    geo.fh = sb && sb.offsetHeight ? sb.offsetHeight : 0;
+    for (var i = 0; i < geoFns.length; i++) geoFns[i]();
+  }
+  window.addEventListener("scroll", function () { geo.y = window.pageYOffset || 0; }, { passive: true });
+
   var toastEl = $("#toast"), toastTimer;
   function toast(msg) {
     if (!toastEl) return;
@@ -306,6 +325,8 @@
     setMode("electric");
 
     function footH() { var sb = $(".sbar"); return sb && sb.offsetHeight ? sb.offsetHeight : 0; }
+    var ds = { top: 0, h: 0, stageH: 0 };                  // the tall scroll area of the demo
+    geoFns.push(function () { ds.top = docTop(driveScroll); ds.h = driveScroll.offsetHeight; ds.stageH = stage.offsetHeight; });
     // Pin the stage only when the whole demo fits on the screen. Otherwise it stays in the normal
     // page flow and draws itself when it comes into view (small phones, landscape, short windows).
     function decidePin() {
@@ -330,10 +351,10 @@
     // Pinned: the drawing starts while the section scrolls into view and is done a little
     // after the stage has pinned. It never draws backwards.
     function scrollGoal() {
-      var r = driveScroll.getBoundingClientRect(), vh = window.innerHeight;
-      var travel = Math.max(0, r.height - stage.offsetHeight);
-      var startTop = vh * 0.85, endTop = headerH() - travel * 0.55;
-      return clamp((startTop - r.top) / Math.max(1, startTop - endTop), 0, 1);
+      var top = ds.top - geo.y, vh = geo.vh;
+      var travel = Math.max(0, ds.h - ds.stageH);
+      var startTop = vh * 0.85, endTop = geo.hh - travel * 0.55;
+      return clamp((startTop - top) / Math.max(1, startTop - endTop), 0, 1);
     }
     function frame(t) {
       raf = 0;
@@ -351,6 +372,7 @@
       if (shown < goal) raf = requestAnimationFrame(frame); else last = 0;
     }
     window.driveKick = function () {
+      if (shown >= 1) return;                              // fully drawn: nothing left to do
       if (!raf) raf = requestAnimationFrame(frame);
       clearTimeout(idle);
       // When you stop scrolling with the drawing in view, it finishes by itself.
@@ -358,8 +380,8 @@
     };
     window.drivePinnedNow = function () {
       if (!pin) return false;
-      var r = driveScroll.getBoundingClientRect();
-      return r.top <= headerH() + 1 && r.bottom >= window.innerHeight - footH() - 2;
+      var top = ds.top - geo.y;
+      return top <= geo.hh + 1 && top + ds.h >= geo.vh - geo.fh - 2;
     };
     if ("IntersectionObserver" in window) {
       new IntersectionObserver(function (es) {
@@ -469,33 +491,41 @@
   var secs = $$("[data-sec]");
   var navLinks = $$("#nav a");
   var timelines = $$("[data-scrub]");
-  var rulerH = 0, ticking = false, lastY = window.pageYOffset || 0, goingUp = false;
+  var rulerH = 0, ticking = false, lastY = geo.y, goingUp = false;
+  var secTop = [], tls = [], notches = [];
 
-  function updateTimelines() {
-    var vh = window.innerHeight;
-    timelines.forEach(function (tl) {
-      var r = tl.getBoundingClientRect();
-      var p = reduce ? 1 : clamp((vh * 0.72 - r.top) / Math.max(r.height, 1), 0, 1);
-      tl.style.setProperty("--p", String(p));
-      Array.prototype.forEach.call(tl.children, function (li) {
-        if (li.tagName !== "LI") return;
-        var on = reduce || li.getBoundingClientRect().top < vh * 0.72 - 8;
-        li.classList.toggle("on", on);
-      });
+  // Stored positions of the sections and the timeline steps (see "Sizes and positions" above)
+  geoFns.push(function () {
+    secTop = secs.map(docTop);
+    tls = timelines.map(function (tl) {
+      return {
+        el: tl, top: docTop(tl), h: Math.max(tl.offsetHeight, 1), p: -1,
+        items: Array.prototype.filter.call(tl.children, function (li) { return li.tagName === "LI"; })
+          .map(function (li) { return { el: li, top: docTop(li) }; })
+      };
+    });
+    rulerH = ruler ? ruler.clientHeight : 0;
+    placeNotches();
+  });
+
+  function updateTimelines(y, vh) {
+    tls.forEach(function (t) {
+      var p = reduce ? 1 : clamp((vh * 0.72 - (t.top - y)) / t.h, 0, 1);
+      if (p !== t.p) { t.p = p; t.el.style.setProperty("--p", String(p)); }
+      t.items.forEach(function (it) { it.el.classList.toggle("on", reduce || it.top - y < vh * 0.72 - 8); });
     });
   }
-  function updateSpy() {
-    var mid = window.innerHeight * 0.4, cur = secs[0];
-    secs.forEach(function (s) { if (s.getBoundingClientRect().top <= mid) cur = s; });
+  function updateSpy(y, vh) {
+    var mid = vh * 0.4, cur = secs[0];
+    for (var i = 0; i < secs.length; i++) if (secTop[i] - y <= mid) cur = secs[i];
     if (!cur) return;
     var key = cur.getAttribute("data-nav");
     navLinks.forEach(function (a) { a.classList.toggle("is-current", a.getAttribute("data-nav") === key); });
   }
   function update() {
     ticking = false;
-    var y = window.pageYOffset || root.scrollTop;
-    var max = Math.max(1, root.scrollHeight - window.innerHeight);
-    var prog = clamp(y / max, 0, 1);
+    var y = geo.y, vh = geo.vh;
+    var prog = clamp(y / geo.max, 0, 1);
     if (progress) progress.style.transform = "scaleX(" + prog + ")";
     if (gridLayer) gridLayer.style.transform = "translate3d(0," + (-((y * 0.2) % 120)).toFixed(1) + "px,0)";
     if (photoBox && !reduce) {
@@ -507,13 +537,13 @@
     // where it would cover text, it also hides while you scroll down and comes back when you scroll up.
     if (toTop) {
       if (y > lastY + 4) goingUp = false; else if (y < lastY - 4) goingUp = true;
-      var roomy = window.innerWidth >= 1200;
+      var roomy = geo.vw >= 1200;
       toTop.classList.toggle("show", y > 900 && (roomy || goingUp) && !(window.drivePinnedNow && window.drivePinnedNow()));
     }
     lastY = y;
     if (window.driveKick) window.driveKick();
-    updateTimelines();
-    updateSpy();
+    updateTimelines(y, vh);
+    updateSpy(y, vh);
   }
   function onScroll() {
     if (!ticking) { ticking = true; requestAnimationFrame(update); }
@@ -524,38 +554,42 @@
     el.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
   }
 
-  function buildRuler() {
+  // One notch per section on the side ruler. Made once, moved when the page changes size.
+  function placeNotches() {
     if (!ruler) return;
-    rulerH = ruler.clientHeight;
-    $$(".notch", ruler).forEach(function (n) { n.remove(); });
-    var max = Math.max(1, root.scrollHeight - window.innerHeight);
-    secs.forEach(function (s) {
-      var top = s.getBoundingClientRect().top + (window.pageYOffset || 0) - headerH();
-      var frac = clamp(top / max, 0, 1);
-      var n = doc.createElement("button");
-      n.type = "button";
-      n.className = "notch";
-      n.tabIndex = -1;
-      n.style.top = Math.round(frac * rulerH) + "px";
-      n.setAttribute("data-l", s.getAttribute("data-label"));
-      n.addEventListener("click", function (e) { e.stopPropagation(); goTo(s); });
-      ruler.appendChild(n);
+    if (!notches.length) {
+      secs.forEach(function (s) {
+        var n = doc.createElement("button");
+        n.type = "button";
+        n.className = "notch";
+        n.tabIndex = -1;
+        n.addEventListener("click", function (e) { e.stopPropagation(); goTo(s); });
+        ruler.appendChild(n);
+        notches.push(n);
+      });
+    }
+    secs.forEach(function (s, i) {
+      var frac = clamp((secTop[i] - geo.hh) / geo.max, 0, 1);
+      notches[i].style.top = Math.round(frac * rulerH) + "px";
+      notches[i].setAttribute("data-l", s.getAttribute("data-label"));   // the label follows the language
     });
   }
   if (ruler) {
     ruler.addEventListener("click", function (e) {
       var r = ruler.getBoundingClientRect();
-      var max = Math.max(1, root.scrollHeight - window.innerHeight);
-      window.scrollTo({ top: clamp((e.clientY - r.top) / r.height, 0, 1) * max, behavior: reduce ? "auto" : "smooth" });
+      window.scrollTo({ top: clamp((e.clientY - r.top) / r.height, 0, 1) * geo.max, behavior: reduce ? "auto" : "smooth" });
     });
   }
   if (toTop) toTop.addEventListener("click", function () { window.scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" }); });
 
   window.addEventListener("scroll", onScroll, { passive: true });
-  window.addEventListener("resize", function () { buildRuler(); onScroll(); });
-  window.addEventListener("load", function () { buildRuler(); update(); setTimeout(function () { buildRuler(); update(); }, 800); });
-  buildRuler();
-  update();
+  // Measure again when the window or the page changes size: fonts, images, the language, filters
+  function remeasure() { measure(); onScroll(); }
+  window.addEventListener("resize", remeasure);
+  window.addEventListener("load", function () { remeasure(); setTimeout(remeasure, 800); });
+  onLang(function () { setTimeout(remeasure, 0); });
+  if (window.ResizeObserver) new ResizeObserver(function () { remeasure(); }).observe(doc.body);
+  remeasure();
 
   /* ---------- GitHub repositories, loaded live ---------- */
   (function () {

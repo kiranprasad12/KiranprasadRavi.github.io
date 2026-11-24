@@ -26,23 +26,26 @@
     if (!track || !track.getAnimations) return;
     var anim = track.getAnimations()[0];
     if (!anim) return;
-    var rate = 1, lastY = window.pageYOffset || 0, vel = 0, raf = 0, visible = false;
+    var rate = 1, y = window.pageYOffset || 0, lastY = y, vel = 0, raf = 0, visible = false;
+    // Runs only while the page scrolls and until the band is back to its normal speed
     function loop() {
       raf = 0;
-      var y = window.pageYOffset || 0;
       vel = vel * 0.88 + (y - lastY) * 0.12;
       lastY = y;
       var target = (vel < -0.6 ? -1 : 1) * (1 + Math.min(Math.abs(vel), 50) * 0.1);
       rate += (target - rate) * 0.1;
+      if (Math.abs(vel) < 0.05 && Math.abs(rate - 1) < 0.01) { rate = 1; anim.playbackRate = 1; return; }
       anim.playbackRate = rate;
-      if (visible || Math.abs(rate - 1) > 0.02) raf = requestAnimationFrame(loop);
-      else anim.playbackRate = 1;
+      raf = requestAnimationFrame(loop);
     }
     function kick() { if (!raf) raf = requestAnimationFrame(loop); }
     if ("IntersectionObserver" in window) {
-      new IntersectionObserver(function (es) { visible = es[0].isIntersecting; if (visible) kick(); }, { threshold: 0 }).observe(band);
+      new IntersectionObserver(function (es) { visible = es[0].isIntersecting; }, { threshold: 0 }).observe(band);
     }
-    window.addEventListener("scroll", function () { if (visible) kick(); }, { passive: true });
+    window.addEventListener("scroll", function () {
+      y = window.pageYOffset || 0;
+      if (visible) kick(); else lastY = y;
+    }, { passive: true });
   })();
 
   /* ---------- Ripple on buttons (tap or click) ---------- */

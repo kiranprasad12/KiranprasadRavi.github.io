@@ -426,7 +426,7 @@ button { font: inherit; color: inherit; }
 .timeline { list-style: none; position: relative; padding-left: 36px; --p: 1; }
 .js .timeline { --p: 0; }
 .timeline::before { content: ""; position: absolute; left: 9px; top: 8px; bottom: 8px; width: 2px; background: var(--line); }
-.timeline::after { content: ""; position: absolute; left: 9px; top: 8px; width: 2px; height: calc((100% - 16px) * var(--p)); background: var(--accent); }
+.timeline::after { content: ""; position: absolute; left: 9px; top: 8px; width: 2px; height: calc(100% - 16px); background: var(--accent); transform: scaleY(var(--p, 0)); transform-origin: top; }
 .timeline li { position: relative; padding-bottom: 28px; }
 .timeline li:last-child { padding-bottom: 0; }
 .timeline .dot { position: absolute; left: -36px; top: 5px; width: 20px; height: 20px; border: 2px solid var(--accent); background: var(--accent); transition: background .35s, border-color .35s; }

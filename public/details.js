@@ -21,11 +21,28 @@
   function num(v, d) { var s = v.toFixed(d); return isDe() ? s.replace(".", ",") : s; }
   function pad2(n) { return (n < 10 ? "0" : "") + n; }
   function onLang(fn) { doc.addEventListener("kpr:lang", fn); }
-  function scrollP() {
-    var max = Math.max(1, root.scrollHeight - window.innerHeight);
-    return clamp((window.pageYOffset || root.scrollTop || 0) / max, 0, 1);
-  }
   function debounce(fn, ms) { var t = 0; return function () { clearTimeout(t); t = setTimeout(fn, ms); }; }
+
+  /* ---------- Sizes and the scroll position, stored ---------- */
+  // The animations below read these numbers instead of asking the browser on every frame, which
+  // would make it redo its layout in the middle of a frame. They are measured again when the
+  // window or the page changes size.
+  var header = $("#site-header"), ruler = $("#ruler");
+  var geo = { y: window.pageYOffset || 0, vw: window.innerWidth, vh: window.innerHeight, max: 1, hw: 0, rw: 0 };
+  var geoFns = [];
+  // Position in the page without transforms
+  function docTop(el) { var t = 0; while (el) { t += el.offsetTop; el = el.offsetParent; } return t; }
+  function measure() {
+    geo.y = window.pageYOffset || 0;
+    geo.vw = window.innerWidth; geo.vh = window.innerHeight;
+    geo.max = Math.max(1, root.scrollHeight - geo.vh);
+    geo.hw = header ? header.clientWidth : geo.vw;
+    geo.rw = ruler ? ruler.offsetWidth : 0;
+    for (var i = 0; i < geoFns.length; i++) geoFns[i]();
+  }
+  measure();
+  window.addEventListener("scroll", function () { geo.y = window.pageYOffset || 0; }, { passive: true });
+  function scrollP() { return clamp(geo.y / geo.max, 0, 1); }
 
   /* ---------- The small truck (used in the intro and on the progress line) ---------- */
   var TRUCK = '<svg class="rig-svg" viewBox="0 0 30 13" width="30" height="13" aria-hidden="true" focusable="false">' +
@@ -79,6 +96,8 @@
     if (bootDone || !boot || reduce) { finish(); return; }
     var mark = $(".boot-mark", boot), numEl = $(".boot-num b", boot), log = $(".boot-log", boot);
     var fill = $(".boot-fill", boot), road = $(".boot-road", boot), host = $(".boot-truck", boot);
+    var roadW = road ? road.clientWidth : 0;
+    window.addEventListener("resize", function () { if (!gone && road) roadW = road.clientWidth; });
     var truck = host ? makeTruck(host) : null;
     var lines = [
       T("js.boot.1", "Sheet 1/1 · Scale 1:1 · Units mm"),
@@ -103,7 +122,7 @@
       if (numEl) numEl.textContent = (p < 10 ? "00" : p < 100 ? "0" : "") + p;
       if (fill) fill.style.transform = "scaleX(" + e.toFixed(4) + ")";
       if (truck && road) {
-        var x = e * Math.max(0, road.clientWidth - 36);
+        var x = e * Math.max(0, roadW - 36);
         truck.roll(x - lastX);
         lastX = x;
         host.style.transform = "translate3d(" + x.toFixed(1) + "px,0,0)";
@@ -298,7 +317,12 @@
   function onScrollFrame() { sRaf = 0; for (var i = 0; i < scrollFns.length; i++) scrollFns[i](); }
   function scrollKick() { if (!sRaf) sRaf = requestAnimationFrame(onScrollFrame); }
   window.addEventListener("scroll", scrollKick, { passive: true });
-  window.addEventListener("resize", scrollKick);
+  // Measure again when the window or the page changes size (fonts, images, language, filters)
+  function remeasure() { measure(); scrollKick(); }
+  window.addEventListener("resize", remeasure);
+  window.addEventListener("load", remeasure);
+  onLang(function () { setTimeout(remeasure, 0); });
+  if (window.ResizeObserver) new ResizeObserver(remeasure).observe(doc.body);
   ttUpdate();
 
   if (reduce) return;
@@ -412,7 +436,7 @@
   });
 
   /* ---------- 10. The truck on the progress line, with a toy hybrid energy manager ---------- */
-  var header = $("#site-header"), rigEl = null, rig = null;
+  var rigEl = null, rig = null;
   if (header) {
     rigEl = doc.createElement("div");
     rigEl.className = "rig";
@@ -432,11 +456,10 @@
   };
   // The middle of the truck sits on the end of the orange progress line. It never parks on top
   // of the side ruler (when the ruler is shown) and never leaves the right edge.
-  var ruler = $("#ruler");
-  function laneStart() { return ruler && ruler.offsetWidth ? ruler.offsetWidth + 6 : 0; }
-  function laneEnd() { return Math.max(laneStart(), (header ? header.clientWidth : window.innerWidth) - 30); }
-  function laneX(p) { return clamp(p * (header ? header.clientWidth : window.innerWidth) - 15, laneStart(), laneEnd()); }
-  function vmax() { return clamp(window.innerWidth * 0.34, 150, 560); }
+  function laneStart() { return geo.rw ? geo.rw + 6 : 0; }
+  function laneEnd() { return Math.max(laneStart(), geo.hw - 30); }
+  function laneX(p) { return clamp(p * geo.hw - 15, laneStart(), laneEnd()); }
+  function vmax() { return clamp(geo.vw * 0.34, 150, 560); }
   function ems(dt, sp, along, moving) {
     var m;
     if (!moving) m = "ready";
@@ -515,12 +538,13 @@
 
   /* ---------- 11. CAD status bar: sheet, energy manager, time ---------- */
   if (sbar) {
-    var secs = $$("[data-sec]"), sRaf2 = 0;
+    var secs = $$("[data-sec]"), secTop = [], sRaf2 = 0;
+    geoFns.push(function () { secTop = secs.map(docTop); });
     var sbUpdate = function () {
       sRaf2 = 0;
       sb.pct.textContent = Math.round(scrollP() * 100);
-      var mid = window.innerHeight * 0.4, cur = 0;
-      for (var i = 0; i < secs.length; i++) if (secs[i].getBoundingClientRect().top <= mid) cur = i;
+      var mid = geo.vh * 0.4, cur = 0;
+      for (var i = 0; i < secs.length; i++) if (secTop[i] - geo.y <= mid) cur = i;
       if (secs.length) {
         sb.sheet.textContent = pad2(cur + 1) + "/" + pad2(secs.length);
         sb.sec.textContent = secs[cur].getAttribute("data-label") || "";
@@ -529,6 +553,7 @@
     var sbKick = function () { if (!sRaf2) sRaf2 = requestAnimationFrame(sbUpdate); };
     scrollFns.push(sbKick);
     onLang(function () { setTimeout(function () { sbUpdate(); sbarCar(0); }, 0); });
+    measure();
     sbUpdate();
     sbarCar(0);
   }
