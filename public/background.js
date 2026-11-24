@@ -4,6 +4,11 @@
    - Phone: fewer dots, a lower frame rate, and the network drifts with your scroll.
    - Click or tap on an empty spot: a wave runs out from that point, pushes the dots aside
      and marks the point.
+   - Two large soft glows drift behind the network. They are two tiny pictures that the
+     browser scales up and moves on its own, so they cost almost nothing per frame.
+   - To save power, lines and dots of the same brightness are drawn together, and on
+     desktop it draws 30 frames a second while nothing moves (60 while the mouse moves,
+     the page scrolls or a wave runs). Phones stay at 30.
    - It follows the colour theme, pauses when the tab is hidden, and shows one still
      picture when "reduce motion" is on. If anything fails, the page still works. */
 (function () {
@@ -18,6 +23,15 @@
   if (!ctx) return;
   doc.body.insertBefore(canvas, doc.body.firstChild);
 
+  // The two glows: small canvases painted once per theme. CSS makes them large and lets them drift.
+  var glow = doc.createElement("div");
+  glow.id = "bg-glow";
+  glow.setAttribute("aria-hidden", "true");
+  glow.innerHTML = '<div class="gx gx1"><canvas width="64" height="64"></canvas></div>' +
+                   '<div class="gx gx2"><canvas width="64" height="64"></canvas></div>';
+  doc.body.insertBefore(glow, canvas);
+  var glows = glow.getElementsByTagName("canvas");
+
   var reduce = root.classList.contains("reduce");
   var mqSmall = window.matchMedia ? matchMedia("(max-width: 760px), (pointer: coarse)") : { matches: false };
 
@@ -30,6 +44,9 @@
   var par = { x: 0, y: 0 };
   var scrollY = window.pageYOffset || 0, scrollSmooth = scrollY;
   var raf = 0, last = 0, acc = 0, nextPulse = 0, slowFrames = 0, scaleDown = 1;
+  var lastActive = 0;                      // last mouse move, scroll or tap
+  var BANDS = 16, bands = [], crosses = [];  // lines and dots grouped by brightness
+  for (var bi = 0; bi < BANDS; bi++) { bands.push([]); crosses.push([]); }
 
   function clamp(v, a, b) { return Math.min(b, Math.max(a, v)); }
   function rnd(a, b) { return a + Math.random() * (b - a); }
@@ -47,6 +64,22 @@
     col.a = hexToRgb(cs.getPropertyValue("--accent2")) || col.a;
     col.b = hexToRgb(cs.getPropertyValue("--accent")) || col.b;
     col.dark = (root.getAttribute("data-theme") !== "paper");
+    paintGlows();
+  }
+  function paintGlow(c, rgb, a) {
+    var g2 = c && c.getContext && c.getContext("2d");
+    if (!g2) return;
+    var r = c.width / 2, g = g2.createRadialGradient(r, r, 0, r, r, r);
+    g.addColorStop(0, "rgba(" + rgb + "," + a + ")");
+    g.addColorStop(1, "rgba(" + rgb + ",0)");
+    g2.clearRect(0, 0, c.width, c.height);
+    g2.fillStyle = g;
+    g2.fillRect(0, 0, c.width, c.height);
+  }
+  function paintGlows() {
+    var k = col.dark ? 1 : 0.8;
+    paintGlow(glows[0], col.a, 0.10 * k);
+    paintGlow(glows[1], col.b, 0.07 * k);
   }
 
   function targetCount() {
@@ -177,29 +210,32 @@
     ctx.restore();
   }
 
+  function emptyBands() { for (var b = 0; b < BANDS; b++) { bands[b].length = 0; crosses[b].length = 0; } }
+  function band(v) { return Math.max(0, Math.min(BANDS - 1, (v * BANDS) | 0)); }
+  function bandAlpha(b, max) { return ((b + 0.5) / BANDS * max).toFixed(3); }
+  // Stroke every group of lines (x1, y1, x2, y2, ...) with one call per group
+  function strokeBands(rgb, max) {
+    for (var b = 0; b < BANDS; b++) {
+      var a = bands[b];
+      if (!a.length) continue;
+      ctx.strokeStyle = "rgba(" + rgb + "," + bandAlpha(b, max) + ")";
+      ctx.beginPath();
+      for (var i = 0; i < a.length; i += 4) { ctx.moveTo(a[i], a[i + 1]); ctx.lineTo(a[i + 2], a[i + 3]); }
+      ctx.stroke();
+    }
+  }
+
   function drawFrame(t, still) {
     ctx.clearRect(0, 0, W, H);
     var k = col.dark ? 1 : 0.8;
-    var i, n, l;
+    var i, n, l, b, a, g;
 
-    // Two large soft glows that drift slowly
-    var gx1 = W * (0.25 + 0.12 * Math.sin(t * 0.00006)), gy1 = H * (0.3 + 0.12 * Math.cos(t * 0.00005));
-    var gx2 = W * (0.78 + 0.1 * Math.cos(t * 0.00005)), gy2 = H * (0.75 + 0.1 * Math.sin(t * 0.00007));
-    var gr = Math.max(W, H) * (small ? 0.75 : 0.55);
-    var g = ctx.createRadialGradient(gx1, gy1, 0, gx1, gy1, gr);
-    g.addColorStop(0, "rgba(" + col.a + "," + (0.10 * k) + ")"); g.addColorStop(1, "rgba(" + col.a + ",0)");
-    ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
-    g = ctx.createRadialGradient(gx2, gy2, 0, gx2, gy2, gr * 0.9);
-    g.addColorStop(0, "rgba(" + col.b + "," + (0.07 * k) + ")"); g.addColorStop(1, "rgba(" + col.b + ",0)");
-    ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
-
-    // Soft light under the mouse (desktop)
+    // Soft light under the mouse (desktop). Only the square around the pointer is painted.
     if (pointer.on && !small && !still) {
       g = ctx.createRadialGradient(pointer.x, pointer.y, 0, pointer.x, pointer.y, 240);
       g.addColorStop(0, "rgba(" + col.a + "," + (0.12 * k) + ")"); g.addColorStop(1, "rgba(" + col.a + ",0)");
-      ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+      ctx.fillStyle = g; ctx.fillRect(pointer.x - 240, pointer.y - 240, 480, 480);
     }
-
 
     // Dials in the corners
     var m = Math.min(W, H);
@@ -209,29 +245,28 @@
     ring(W * (small ? 0.96 : 0.9) - par.x * 40, H * 0.2 + Math.sin(sc * 0.0012) * 40 - par.y * 30, r1, t * 0.00005 + sc * 0.0008, 0.11 * k);
     ring(W * (small ? 0.02 : 0.06) + par.x * 28, H * 0.84 + Math.cos(sc * 0.001) * 36 + par.y * 24, r2, -(t * 0.00007) - sc * 0.001, 0.1 * k);
 
-    // Scroll parallax: nearer dots shift more when you scroll
+    // Lines between dots. Scroll parallax: nearer dots shift more when you scroll.
     var off = scrollSmooth;
     ctx.lineWidth = 1;
+    emptyBands();
     for (i = 0; i < links.length; i++) {
       l = links[i];
-      var ay = l.a.y - off * l.a.d * 0.12, by = l.b.y - off * l.b.d * 0.12;
-      ctx.strokeStyle = "rgba(" + col.a + "," + (l.t * (small ? 0.38 : 0.3) * k) + ")";
-      ctx.beginPath(); ctx.moveTo(l.a.x, wrapY(ay)); ctx.lineTo(l.b.x, wrapY(by));
-      // skip lines that would stretch across a wrap seam
-      if (Math.abs(wrapY(ay) - wrapY(by)) < 220) ctx.stroke(); else ctx.beginPath();
+      var ay = wrapY(l.a.y - off * l.a.d * 0.12), by = wrapY(l.b.y - off * l.b.d * 0.12);
+      if (Math.abs(ay - by) >= 220) continue;               // a line across the wrap seam
+      bands[band(l.t)].push(l.a.x, ay, l.b.x, by);
     }
+    strokeBands(col.a, (small ? 0.38 : 0.3) * k);
 
     // Lines from the mouse to nearby dots (desktop)
     if (pointer.on && !small && !still) {
+      emptyBands();
       for (i = 0; i < nodes.length; i++) {
         n = nodes[i];
         var py = wrapY(n.y - off * n.d * 0.12);
         var ddx = n.x - pointer.x, ddy = py - pointer.y, dist = Math.sqrt(ddx * ddx + ddy * ddy);
-        if (dist < 190) {
-          ctx.strokeStyle = "rgba(" + col.b + "," + ((1 - dist / 190) * 0.5 * k) + ")";
-          ctx.beginPath(); ctx.moveTo(pointer.x, pointer.y); ctx.lineTo(n.x, py); ctx.stroke();
-        }
+        if (dist < 190) bands[band(1 - dist / 190)].push(pointer.x, pointer.y, n.x, py);
       }
+      strokeBands(col.b, 0.5 * k);
     }
 
     // Click waves: two rings and a marked point
@@ -261,7 +296,7 @@
       for (i = 0; i < pulses.length; i++) {
         var p = pulses[i];
         var px = p.a.x + (p.b.x - p.a.x) * p.p;
-        var py2 = wrapY(p.a.y - off * p.a.d * 0.12) + (wrapY(p.b.y - off * p.b.d * 0.12) - wrapY(p.a.y - off * p.a.d * 0.12)) * p.p;
+        var pa = wrapY(p.a.y - off * p.a.d * 0.12), py2 = pa + (wrapY(p.b.y - off * p.b.d * 0.12) - pa) * p.p;
         var fade = Math.sin(p.p * Math.PI);
         ctx.fillStyle = "rgba(" + col.b + "," + (0.9 * fade) + ")";
         ctx.fillRect(px - 2.5, py2 - 2.5, 5, 5);
@@ -270,19 +305,34 @@
       }
     }
 
-    // Dots: small squares and a few crosshairs, to match the blueprint look
+    // Dots: small squares and a few crosshairs, to match the blueprint look.
+    // Squares of the same brightness are filled together, crosshairs stroked together.
+    emptyBands();
     for (i = 0; i < nodes.length; i++) {
       n = nodes[i];
       var y = wrapY(n.y - off * n.d * 0.12);
-      var s = (small ? 2 : 1.6) + n.d * 1.8;
       var tw = still ? 1 : 0.75 + 0.25 * Math.sin(t * 0.001 + n.ph);
-      ctx.fillStyle = "rgba(" + col.a + "," + (0.7 * n.d * tw * k) + ")";
-      if (n.cross) {
-        var c = 5 + n.d * 3;
-        ctx.strokeStyle = "rgba(" + col.a + "," + (0.5 * n.d * tw * k) + ")";
-        ctx.beginPath(); ctx.moveTo(n.x - c, y); ctx.lineTo(n.x + c, y); ctx.moveTo(n.x, y - c); ctx.lineTo(n.x, y + c); ctx.stroke();
-      } else {
-        ctx.fillRect(n.x - s / 2, y - s / 2, s, s);
+      var lv = n.d * tw;                                    // 0..1, brightness of this dot
+      if (n.cross) crosses[band(lv)].push(n.x, y, 5 + n.d * 3);
+      else bands[band(lv)].push(n.x, y, (small ? 2 : 1.6) + n.d * 1.8);
+    }
+    for (b = 0; b < BANDS; b++) {
+      a = bands[b];
+      if (a.length) {
+        ctx.fillStyle = "rgba(" + col.a + "," + bandAlpha(b, 0.7 * k) + ")";
+        ctx.beginPath();
+        for (i = 0; i < a.length; i += 3) ctx.rect(a[i] - a[i + 2] / 2, a[i + 1] - a[i + 2] / 2, a[i + 2], a[i + 2]);
+        ctx.fill();
+      }
+      a = crosses[b];
+      if (a.length) {
+        ctx.strokeStyle = "rgba(" + col.a + "," + bandAlpha(b, 0.5 * k) + ")";
+        ctx.beginPath();
+        for (i = 0; i < a.length; i += 3) {
+          var cx = a[i], cy = a[i + 1], c = a[i + 2];
+          ctx.moveTo(cx - c, cy); ctx.lineTo(cx + c, cy); ctx.moveTo(cx, cy - c); ctx.lineTo(cx, cy + c);
+        }
+        ctx.stroke();
       }
     }
   }
@@ -292,15 +342,17 @@
   function frame(ts) {
     raf = 0;
     if (doc.hidden) return;
-    var interval = small ? 1000 / 30 : 1000 / 60;
-    var dt = last ? (ts - last) / 1000 : 0.016;
+    // 60 frames a second on desktop only while something moves, otherwise 30
+    var busy = !small && (waves.length > 0 || ts - lastActive < 1500 || Math.abs(scrollY - scrollSmooth) > 0.5);
+    var interval = busy ? 1000 / 60 : 1000 / 30;
+    var raw = last ? (ts - last) / 1000 : 0.016;
     if (ts - last >= interval - 2 || !last) {
-      dt = Math.min(dt, 0.05);
+      var dt = Math.min(raw, 0.05);
       scrollSmooth += (scrollY - scrollSmooth) * Math.min(1, dt * 6);
       step(dt);
       drawFrame(ts, false);
       // If the device struggles, use fewer dots (once).
-      if (dt > (small ? 0.05 : 0.03)) slowFrames++; else slowFrames = Math.max(0, slowFrames - 1);
+      if (raw > interval / 1000 * 1.7) slowFrames++; else slowFrames = Math.max(0, slowFrames - 1);
       if (slowFrames > 40 && scaleDown === 1) { scaleDown = 0.6; nodes.length = Math.max(12, Math.round(nodes.length * 0.6)); }
       last = ts;
     }
@@ -312,11 +364,16 @@
   /* ---------- Events ---------- */
   var rt = 0;
   window.addEventListener("resize", function () { clearTimeout(rt); rt = setTimeout(setup, 150); });
-  window.addEventListener("scroll", function () { scrollY = window.pageYOffset || 0; if (reduce) { scrollSmooth = scrollY; drawStill(); } }, { passive: true });
+  window.addEventListener("scroll", function () {
+    scrollY = window.pageYOffset || 0;
+    lastActive = performance.now();
+    if (reduce) { scrollSmooth = scrollY; drawStill(); }
+  }, { passive: true });
   doc.addEventListener("visibilitychange", function () { if (doc.hidden) stop(); else start(); });
   doc.addEventListener("pointermove", function (e) {
     if (e.pointerType === "touch") return;
     pointer.x = e.clientX; pointer.y = e.clientY; pointer.on = true;
+    lastActive = performance.now();
   }, { passive: true });
   root.addEventListener("mouseleave", function () { pointer.on = false; });
   // Click or tap on an empty spot (not on a link, button, form field, demo or selected text)
