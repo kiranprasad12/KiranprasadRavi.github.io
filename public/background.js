@@ -2,6 +2,8 @@
    Animated background: a slow "signal network" drawn on one canvas behind the page.
    - Desktop: the mouse gently pushes the dots away and draws lines to the nearest ones.
    - Phone: fewer dots, a lower frame rate, and the network drifts with your scroll.
+   - Click or tap on an empty spot: a wave runs out from that point, pushes the dots aside
+     and marks the point with its coordinates in millimetres.
    - It follows the colour theme, pauses when the tab is hidden, and shows one still
      picture when "reduce motion" is on. If anything fails, the page still works. */
 (function () {
@@ -21,7 +23,8 @@
 
   var W = 0, H = 0, dpr = 1;
   var small = mqSmall.matches;
-  var nodes = [], pulses = [], links = [];
+  var nodes = [], pulses = [], links = [], waves = [];
+  var WAVE_LIFE = 1.4, WAVE_SPEED = 620, MM = 25.4 / 96;
   var col = { a: "116,212,255", b: "255,191,63", dark: true };
   var pointer = { x: -9999, y: -9999, on: false };
   var par = { x: 0, y: 0 };
@@ -59,7 +62,7 @@
     var sp = rnd(5, 15) * (small ? 0.8 : 1);
     return {
       x: rnd(0, W), y: rnd(0, H),
-      vx: Math.cos(ang) * sp, vy: Math.sin(ang) * sp,
+      vx: Math.cos(ang) * sp, vy: Math.sin(ang) * sp, ix: 0, iy: 0,
       d: depth, cross: Math.random() < 0.22, ph: rnd(0, 6.28)
     };
   }
@@ -91,11 +94,28 @@
     par.y += ((pointer.on && !small ? pointer.y / H - 0.5 : 0) - par.y) * Math.min(1, dt * 3);
     var linkD = small ? 118 : 155;
     var ptrR = 170;
-    var i, n;
+    var i, n, w;
+    for (i = waves.length - 1; i >= 0; i--) {
+      waves[i].age += dt;
+      if (waves[i].age > WAVE_LIFE) waves.splice(i, 1);
+    }
+    var damp = Math.exp(-2.6 * dt);
     for (i = 0; i < nodes.length; i++) {
       n = nodes[i];
-      n.x += n.vx * dt * n.d;
-      n.y += n.vy * dt * n.d;
+      // a click wave pushes the dots outwards as its front passes them
+      for (var k = 0; k < waves.length; k++) {
+        w = waves[k];
+        var wx = n.x - w.x, wy = wrapY(n.y - scrollSmooth * n.d * 0.12) - w.y;
+        var wd = Math.sqrt(wx * wx + wy * wy) || 1;
+        var band = 1 - Math.abs(wd - w.age * WAVE_SPEED) / 46;
+        if (band > 0) {
+          var push = band * (1 - w.age / WAVE_LIFE) * 1500 * dt * (0.5 + n.d * 0.5);
+          n.ix += wx / wd * push; n.iy += wy / wd * push;
+        }
+      }
+      n.x += (n.vx * n.d + n.ix) * dt;
+      n.y += (n.vy * n.d + n.iy) * dt;
+      n.ix *= damp; n.iy *= damp;
       if (pointer.on && !small) {
         var dx = n.x - pointer.x, dy = n.y - pointer.y, dd = dx * dx + dy * dy;
         if (dd < ptrR * ptrR && dd > 1) {
@@ -213,6 +233,33 @@
       }
     }
 
+    // Click waves: two rings and a marked point with its coordinates
+    if (!still) {
+      for (i = 0; i < waves.length; i++) {
+        var wv = waves[i], age = wv.age / WAVE_LIFE, R = wv.age * WAVE_SPEED, al = 1 - age;
+        ctx.lineWidth = 1.5;
+        ctx.strokeStyle = "rgba(" + col.a + "," + (0.55 * al * k) + ")";
+        ctx.beginPath(); ctx.arc(wv.x, wv.y, R, 0, 6.2832); ctx.stroke();
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = "rgba(" + col.b + "," + (0.4 * al * k) + ")";
+        ctx.beginPath(); ctx.arc(wv.x, wv.y, R * 0.62, 0, 6.2832); ctx.stroke();
+        var mk = Math.max(0, 1 - wv.age / 1.1);
+        if (mk > 0) {
+          ctx.strokeStyle = "rgba(" + col.b + "," + (0.95 * mk) + ")";
+          ctx.beginPath();
+          ctx.moveTo(wv.x - 10, wv.y); ctx.lineTo(wv.x - 3, wv.y); ctx.moveTo(wv.x + 3, wv.y); ctx.lineTo(wv.x + 10, wv.y);
+          ctx.moveTo(wv.x, wv.y - 10); ctx.lineTo(wv.x, wv.y - 3); ctx.moveTo(wv.x, wv.y + 3); ctx.lineTo(wv.x, wv.y + 10);
+          ctx.stroke();
+          ctx.beginPath(); ctx.arc(wv.x, wv.y, 5, 0, 6.2832); ctx.stroke();
+          ctx.font = "500 10px ui-monospace, Menlo, Consolas, monospace";
+          ctx.fillStyle = "rgba(" + col.b + "," + (0.9 * mk) + ")";
+          var tw = ctx.measureText(wv.label).width;
+          // keep the label on screen: put it on the left of the point near the right edge
+          ctx.fillText(wv.label, wv.x + 12 + tw > W - 6 ? wv.x - 12 - tw : wv.x + 12, wv.y < 24 ? wv.y + 20 : wv.y - 9);
+        }
+      }
+    }
+
     // Pulses
     if (!still) {
       for (i = 0; i < pulses.length; i++) {
@@ -276,6 +323,18 @@
     pointer.x = e.clientX; pointer.y = e.clientY; pointer.on = true;
   }, { passive: true });
   root.addEventListener("mouseleave", function () { pointer.on = false; });
+  // Click or tap on an empty spot (not on a link, button, form field, demo or selected text)
+  doc.addEventListener("click", function (e) {
+    if (reduce || e.button) return;
+    var t = e.target;
+    if (!t || !t.closest || t.closest("a, button, input, select, textarea, label, summary, [role='radio'], [role='dialog'], .chip, .drive-canvas, .rl-svg, .th-fig, .ruler, .boot, .sbar")) return;
+    if (window.getSelection && String(window.getSelection())) return;
+    var de = window.kprLang && window.kprLang() === "de";
+    function f(v) { var s = (v * MM).toFixed(1); return de ? s.replace(".", ",") : s; }
+    waves.push({ x: e.clientX, y: e.clientY, age: 0, label: "X " + f(e.pageX) + "  Y " + f(e.pageY) });
+    if (waves.length > 4) waves.shift();
+    start();
+  });
   window.addEventListener("blur", function () { pointer.on = false; });
   if (mqSmall.addEventListener) mqSmall.addEventListener("change", function () { W = 0; nodes.length = 0; scaleDown = 1; setup(); });
   if (window.MutationObserver) {

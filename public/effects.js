@@ -1,8 +1,10 @@
 /* Kiran Prasad Ravi, personal site.
    Small effects on top of the page. Nothing here is needed to read the site.
-   - Everyone (unless "reduce motion" is on): keyword band speeds up while scrolling, button ripple.
-   - Desktop with a mouse only: cards tilt and glow, hero depth, cursor ring, sliding menu underline,
-     skill chip wave, main buttons lean towards the pointer.
+   - Everyone (unless "reduce motion" is on): keyword band speeds up while scrolling (and runs
+     backwards when you scroll up), button ripple.
+   - Desktop with a mouse only: cards tilt and glow, hero depth, cursor ring with a short tag
+     (copy, email, PDF, open, skill group), sliding menu underline, skill chip wave, main buttons
+     lean towards the pointer.
    If this file fails, the page still works. */
 (function () {
   "use strict";
@@ -17,7 +19,7 @@
 
   if (reduce) return;
 
-  /* ---------- Keyword band: faster while you scroll ---------- */
+  /* ---------- Keyword band: faster while you scroll, and it runs backwards when you scroll up ---------- */
   (function () {
     var band = doc.getElementById("marquee");
     var track = band && band.querySelector(".marquee-track");
@@ -28,9 +30,9 @@
     function loop() {
       raf = 0;
       var y = window.pageYOffset || 0;
-      vel = vel * 0.88 + Math.abs(y - lastY) * 0.12;
+      vel = vel * 0.88 + (y - lastY) * 0.12;
       lastY = y;
-      var target = 1 + Math.min(vel, 50) * 0.1;
+      var target = (vel < -0.6 ? -1 : 1) * (1 + Math.min(Math.abs(vel), 50) * 0.1);
       rate += (target - rate) * 0.1;
       anim.playbackRate = rate;
       if (visible || Math.abs(rate - 1) > 0.02) raf = requestAnimationFrame(loop);
@@ -128,8 +130,32 @@
     var ring = doc.createElement("div");
     ring.className = "cursor-ring";
     ring.setAttribute("aria-hidden", "true");
+    var tag = doc.createElement("span");
+    tag.className = "cursor-tag";
+    ring.appendChild(tag);
     doc.body.appendChild(ring);
-    var cx = 0, cy = 0, tx = 0, ty = 0, raf = 0, seen = false;
+    var cx = 0, cy = 0, tx = 0, ty = 0, raf = 0, seen = false, lastT = null;
+    function T(k, en) { return window.kprT ? window.kprT(k, en) : en; }
+    // A short tag next to the ring says what a click will do: copy, email, PDF, open in a new tab.
+    // Over a skill it shows the skill's group.
+    function tagFor(t) {
+      var el = t.closest && t.closest("a, button, #skill-cloud .chip");
+      if (!el) return null;
+      if (el.id === "copy-email") return { text: T("js.tag.copy", "Copy") };
+      if (el.tagName === "A") {
+        var href = el.getAttribute("href") || "";
+        if (href.indexOf("mailto:") === 0) return { text: T("js.tag.mail", "Email") };
+        if (el.hasAttribute("download") || /\.pdf$/i.test(href)) return { text: "PDF ↓" };
+        if (el.target === "_blank") return { text: T("js.tag.open", "Open") + " ↗" };
+        return null;
+      }
+      if (el.classList.contains("chip")) {
+        var cat = el.getAttribute("data-cat"), b = cat && doc.querySelector('#skill-filters [data-filter="' + cat + '"]');
+        return b ? { text: b.textContent, color: "var(--c-" + cat + ")" } : null;
+      }
+      return null;
+    }
+    doc.addEventListener("kpr:lang", function () { lastT = null; });
     function step() {
       cx += (tx - cx) * 0.22;
       cy += (ty - cy) * 0.22;
@@ -146,6 +172,15 @@
       var link = t.closest && t.closest("a, button, [role='radio'], select, label, .notch, .ruler");
       ring.classList.toggle("is-text", !!text);
       ring.classList.toggle("is-link", !!link && !text);
+      if (t !== lastT) {
+        lastT = t;
+        var info = text ? null : tagFor(t);
+        ring.classList.toggle("has-tag", !!info);
+        if (info) {
+          tag.textContent = info.text;
+          if (info.color) tag.style.setProperty("--tc", info.color); else tag.style.removeProperty("--tc");
+        }
+      }
       if (!raf) raf = requestAnimationFrame(step);
     }, { passive: true });
     doc.addEventListener("pointerdown", function () { ring.classList.add("is-down"); }, { passive: true });

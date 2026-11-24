@@ -319,7 +319,28 @@
 "js.pal.copy": "E-Mail-Adresse kopieren",
 "js.pal.mail": "E-Mail schreiben",
 "js.pal.top": "Nach oben",
-"js.lang.to": "Sprache wechseln"
+"js.lang.to": "Sprache wechseln",
+"footer.3": "Maßstab",
+"footer.4": "Blatt",
+"footer.5": "Ortszeit",
+"footer.6": "Letzte Änderung",
+"js.boot.1": "Blatt 1/1 · Maßstab 1:1 · Einheit mm",
+"js.boot.2": "Abschnitte",
+"js.boot.3": "Projekte",
+"js.boot.4": "Fähigkeiten",
+"js.boot.5": "Die Seite wird gezeichnet",
+"js.boot.6": "Bereit",
+"js.ems.ready": "BEREIT",
+"js.ems.ev": "EV",
+"js.ems.engine": "VKM",
+"js.ems.boost": "BOOST",
+"js.ems.regen": "REKU",
+"js.tag.copy": "Kopieren",
+"js.tag.mail": "E-Mail",
+"js.tag.open": "Öffnen",
+"js.pal.wire": "Ansicht: Drahtmodell",
+"js.pal.wireoff": "Ansicht: normal",
+"js.wire.badge": "Drahtmodell-Ansicht"
 };
   var root = document.documentElement;
   var lang = "en";

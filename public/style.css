@@ -784,3 +784,233 @@ html.vt::view-transition-new(root) { animation: vtReveal .75s var(--ease) both; 
 .cursor-ring.is-link { width: 62px; height: 62px; margin: -31px 0 0 -31px; background: color-mix(in srgb, var(--accent) 14%, transparent); border-color: var(--accent); }
 .cursor-ring.is-down { width: 24px; height: 24px; margin: -12px 0 0 -12px; }
 .cursor-ring.is-text { opacity: 0; }
+
+/* ==========================================================================
+   Detail layer (details.js): intro door, truck on the progress line, CAD status
+   bar, measured dimension lines, drawing zones, card grips, footer title block.
+   Motion is switched off by reduced motion; the still parts stay.
+   ========================================================================== */
+:root { --font-mono: ui-monospace, "SF Mono", "Cascadia Mono", "Roboto Mono", Menlo, Consolas, monospace; }
+html { scrollbar-color: var(--line-strong) var(--bg); }
+
+/* The progress line now runs along the bottom edge of the header, so the truck can drive on it */
+.progress { top: calc(var(--header-h) - 1px); height: 2px; }
+
+/* ---------- Intro on the first visit: a roller door with a loading counter ---------- */
+.boot { display: none; }
+html.booting .boot { display: block; position: fixed; inset: 0; z-index: 1000; animation: bootSafety .3s linear 3.6s forwards; }
+@keyframes bootSafety { to { opacity: 0; visibility: hidden; } }
+html.boot-lock, html.boot-lock body { overflow: hidden; }
+.boot-door { position: absolute; inset: 0; overflow: hidden; background-color: var(--bg);
+  background-image:
+    repeating-linear-gradient(to bottom, transparent 0 53px, color-mix(in srgb, var(--line) 80%, transparent) 53px 54px, color-mix(in srgb, #000 14%, transparent) 54px 56px),
+    linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 100% 56px, 24px 24px, 24px 24px;
+  transition: transform .8s cubic-bezier(.76, 0, .24, 1); will-change: transform; }
+.boot.is-fast .boot-door { transition-duration: .42s; }
+.boot.is-out .boot-door { transform: translateY(-101%); }
+/* crop marks in the corners and two faint axes through the centre */
+.boot-door::before { content: ""; position: absolute; inset: 14px; pointer-events: none;
+  background:
+    linear-gradient(var(--accent), var(--accent)) top left / 22px 2px no-repeat, linear-gradient(var(--accent), var(--accent)) top left / 2px 22px no-repeat,
+    linear-gradient(var(--accent), var(--accent)) top right / 22px 2px no-repeat, linear-gradient(var(--accent), var(--accent)) top right / 2px 22px no-repeat,
+    linear-gradient(var(--accent), var(--accent)) bottom left / 22px 2px no-repeat, linear-gradient(var(--accent), var(--accent)) bottom left / 2px 22px no-repeat,
+    linear-gradient(var(--accent), var(--accent)) bottom right / 22px 2px no-repeat, linear-gradient(var(--accent), var(--accent)) bottom right / 2px 22px no-repeat;
+  animation: bootCrop .7s var(--ease) both; }
+.boot-door::after { content: ""; position: absolute; inset: 0; pointer-events: none;
+  background:
+    linear-gradient(color-mix(in srgb, var(--accent2) 30%, transparent), color-mix(in srgb, var(--accent2) 30%, transparent)) 0 44% / 100% 1px no-repeat,
+    linear-gradient(color-mix(in srgb, var(--accent2) 30%, transparent), color-mix(in srgb, var(--accent2) 30%, transparent)) 50% 0 / 1px 100% no-repeat;
+  animation: bootAxes 1s var(--ease) both; }
+@keyframes bootCrop { from { inset: 46px; opacity: 0; } }
+@keyframes bootAxes { from { opacity: 0; transform: scale(.6); } }
+.boot-mark { position: absolute; left: 50%; top: 44%; z-index: 2; width: 76px; height: 76px; margin: -38px 0 0 -38px; display: grid; place-items: center;
+  border: 5px solid var(--accent); background: var(--bg); color: var(--accent); font: 700 38px/1 var(--font-head); will-change: transform;
+  animation: markIn .6s var(--ease) both; }
+@keyframes markIn { from { opacity: 0; transform: scale(.7) rotate(-8deg); } }
+.boot-name { position: absolute; left: 0; right: 0; top: calc(44% + 58px); max-width: none; margin: 0; text-align: center; font: 500 12px/1 var(--font-mono); letter-spacing: .34em; text-transform: uppercase; color: var(--muted); animation: logIn .6s var(--ease) .15s both; }
+.boot-foot { position: absolute; left: clamp(18px, 4vw, 48px); right: clamp(18px, 4vw, 48px); bottom: 52px; display: flex; align-items: flex-end; justify-content: space-between; gap: 18px; }
+.boot-log { list-style: none; margin: 0; padding: 0; max-width: 64%; font: 500 11.5px/1.75 var(--font-mono); letter-spacing: .03em; color: var(--muted); }
+.boot-log li { animation: logIn .25s var(--ease) both; }
+.boot-log li::before { content: "> "; color: var(--accent2); }
+.boot-log li.ok { color: var(--accent); }
+@keyframes logIn { from { opacity: 0; transform: translateY(6px); } }
+.boot-num { flex: none; font: 700 clamp(3.6rem, 11vw, 7.5rem)/.8 var(--font-head); color: var(--ink); font-variant-numeric: tabular-nums; }
+.boot-num b { font-weight: 700; }
+.boot-num small { font-size: .3em; margin-left: 4px; color: var(--accent); }
+.boot-road { position: absolute; left: 0; right: 0; bottom: 18px; height: 16px; }
+.boot-road::before { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 1px; background: var(--line-strong); }
+.boot-fill { position: absolute; left: 0; right: 0; bottom: 0; height: 2px; background: var(--accent); transform-origin: left; transform: scaleX(0); }
+.boot-truck { position: absolute; left: 0; bottom: 2px; width: 30px; height: 13px; }
+.boot-truck .rig-svg { transform: scale(1.2); transform-origin: 50% 100%; }
+.boot-rail { position: absolute; left: 0; right: 0; bottom: 0; height: 16px; border-top: 1px solid var(--line-strong);
+  background: repeating-linear-gradient(135deg, color-mix(in srgb, var(--accent) 85%, transparent) 0 9px, transparent 9px 18px); }
+@media (max-width: 560px) {
+  .boot-log { font-size: 10.5px; max-width: 58%; }
+  .boot-foot { bottom: 50px; }
+}
+
+/* Replays the hero entrance when the door opens (details.js adds and removes this in one step) */
+html.replay .hero, html.replay .hero *, html.replay .hero *::before, html.replay .hero *::after { animation: none !important; }
+
+/* ---------- Truck on the progress line (all devices) ---------- */
+.rig { position: absolute; left: 0; bottom: 0; z-index: 3; width: 30px; height: 13px; pointer-events: none; transform: translate3d(-44px, 0, 0); will-change: transform; }
+.rig-svg { display: block; overflow: visible; }
+.rig-box, .rig-cab { fill: var(--bg); stroke: var(--ink); stroke-width: 1.1; stroke-linejoin: round; }
+.rig-stripe { stroke: var(--accent); stroke-width: 1.2; }
+.rig-socbg { fill: color-mix(in srgb, var(--ink) 16%, transparent); }
+.rig-soc { fill: var(--c-sim); transform-box: fill-box; transform-origin: 0 50%; transform: scaleX(.82); transition: fill .3s; }
+.rig.is-regen .rig-soc { fill: var(--accent2); }
+.rig-win { fill: color-mix(in srgb, var(--accent2) 55%, transparent); }
+.rig-chassis { stroke: var(--ink); stroke-width: 1.1; }
+.rig-body { transform-box: fill-box; transform-origin: 70% 100%; }
+.rig-wheel { transform-box: fill-box; transform-origin: center; }
+.rig-wheel circle { fill: var(--bg); stroke: var(--ink); stroke-width: 1.1; }
+.rig-wheel path { stroke: var(--ink); stroke-width: .7; }
+.rig-head { fill: var(--accent); }
+.rig-beam { fill: var(--accent); opacity: calc(var(--hl, .3) * .3); }
+.rig-brake { fill: #ff4d3d; opacity: var(--brake, 0); transition: opacity .12s; }
+.rig-rev { fill: #ffffff; opacity: var(--rev, 0); transition: opacity .2s; }
+:root[data-theme="paper"] .rig-rev { fill: #8aa0b8; }
+.rig-wind { fill: none; stroke: var(--muted); stroke-width: .8; stroke-linecap: round; opacity: var(--wind, 0); }
+.rig.is-haz .rig-brake, .rig.is-haz .rig-head { animation: haz .56s steps(1) 4; }
+@keyframes haz { 0% { opacity: 1; fill: #ffb020; } 50% { opacity: .12; fill: #ffb020; } }
+
+/* ---------- CAD status bar (wide screens with a mouse) ---------- */
+.sbar { display: none; }
+@media (min-width: 1200px) and (hover: hover) and (pointer: fine) {
+  html.has-sbar body { padding-bottom: 26px; }
+  html.has-sbar .ruler { bottom: 26px; }
+  html.has-sbar .to-top { bottom: 40px; }
+  html.has-sbar .toast { bottom: 44px; }
+  .sbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 46; height: 26px; display: flex; align-items: stretch;
+    font: 500 11px/1 var(--font-mono); letter-spacing: .03em; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap;
+    background: var(--bg); background: color-mix(in srgb, var(--bg) 86%, transparent); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+    border-top: 1px solid var(--line); animation: sbarIn .6s var(--ease) both; }
+  .sbar > span { display: inline-flex; align-items: center; gap: 6px; padding: 0 14px; border-right: 1px solid var(--line); }
+  .sbar b { font-weight: 600; color: var(--ink); }
+  .sbar i { font-style: normal; }
+  .sbar em { font-style: normal; color: var(--muted); }
+  .sbar .sb-led { width: 40px; padding: 0; justify-content: center; }
+  .sbar .sb-led::before { content: ""; width: 6px; height: 6px; background: var(--c-sim); box-shadow: 0 0 8px var(--c-sim); animation: led 2.4s ease-in-out infinite; }
+  .sbar .sb-sp { flex: 1; padding: 0; }
+  .sbar [data-k="x"], .sbar [data-k="y"] { min-width: 5ch; text-align: right; }
+  .sbar .sb-mode { min-width: 6ch; color: var(--accent2); }
+  .sbar .sb-mode[data-m="ev"] { color: var(--c-sim); }
+  .sbar .sb-mode[data-m="regen"] { color: var(--accent2); }
+  .sbar .sb-mode[data-m="boost"] { color: var(--accent); }
+  .sbar .sb-mode[data-m="engine"] { color: var(--c-cad); }
+  .sbar .sb-mode[data-m="ready"] { color: var(--muted); }
+  .sbar [data-k="v"] { min-width: 2ch; text-align: right; }
+  .sbar .sb-lim { color: var(--accent); font-weight: 600; visibility: hidden; }
+  .sbar.is-lim .sb-lim { visibility: visible; animation: blink .5s steps(1) infinite; }
+}
+@keyframes sbarIn { from { transform: translateY(100%); } }
+@keyframes led { 50% { opacity: .3; } }
+
+/* ---------- Dimension lines: arrowheads and the measured length ---------- */
+.dim { position: relative; }
+.dim::before, .dim::after { content: ""; position: absolute; top: 50%; margin-top: -3px; border-block: 3px solid transparent; pointer-events: none; }
+.dim::before { left: 1px; border-right: 8px solid var(--line-strong); }
+.dim::after { right: 1px; border-left: 8px solid var(--line-strong); }
+.dim.is-tiny::before, .dim.is-tiny::after { display: none; }
+.dim-v { position: absolute; left: 50%; bottom: calc(50% + 3px); transform: translateX(-50%); padding: 0 4px; font: 500 10.5px/1 var(--font-mono); letter-spacing: .03em; color: var(--muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.dim.is-short .dim-v { display: none; }
+.js [data-reveal="head"] .dim { clip-path: inset(-14px 100% -14px 0); }
+.js [data-reveal="head"].in .dim { clip-path: inset(-14px 0 -14px 0); }
+/* headings now decode letter by letter (details.js) instead of the blur */
+.js:not(.reduce) [data-reveal="head"] h2 { filter: none; transition: clip-path .9s var(--ease), transform .9s var(--ease); }
+
+/* ---------- Drawing zones around the hero sheet (1 to 6, A to D) ---------- */
+.zones { position: absolute; inset: 0; pointer-events: none; }
+.zl { position: absolute; font: 500 10px/1 var(--font-mono); color: var(--muted); }
+.zt { top: -16px; transform: translateX(-50%); }
+.zs { left: -15px; transform: translateY(-50%); }
+.zk { position: absolute; }
+.zkh { top: 0; bottom: 0; width: 1px;
+  background: linear-gradient(var(--line-strong), var(--line-strong)) top / 1px 7px no-repeat, linear-gradient(var(--line-strong), var(--line-strong)) bottom / 1px 7px no-repeat; }
+.zkv { left: 0; right: 0; height: 1px;
+  background: linear-gradient(var(--line-strong), var(--line-strong)) left / 7px 1px no-repeat, linear-gradient(var(--line-strong), var(--line-strong)) right / 7px 1px no-repeat; }
+.js:not(.reduce) .zl { animation: logIn .5s var(--ease) backwards; animation-delay: calc(1.05s + var(--i, 0) * 70ms); }
+.js:not(.reduce) .zk { animation: bgIn .6s ease 1s backwards; }
+@media (max-width: 640px) { .zs { left: -13px; } }
+
+/* ---------- Name lit by the pointer, and a light that passes over it now and then ---------- */
+@property --la { syntax: "<number>"; inherits: false; initial-value: 0; }
+@supports ((-webkit-background-clip: text) or (background-clip: text)) {
+  .js:not(.reduce) .hero h1.lit .nm {
+    color: transparent;
+    background-image:
+      radial-gradient(circle calc(var(--la, 0) * 170px) at var(--lx, 50%) var(--ly, 50%), var(--accent), transparent 72%),
+      linear-gradient(105deg, transparent 43%, color-mix(in srgb, var(--accent2) 65%, #fff) 50%, transparent 57%),
+      linear-gradient(var(--ink), var(--ink));
+    background-size: 100% 100%, 300% 100%, 100% 100%;
+    background-position: 0 0, 120% 0, 0 0;
+    background-repeat: no-repeat;
+    -webkit-background-clip: text; background-clip: text;
+    transition: --la .35s var(--ease);
+    animation: nameIn 1s var(--ease) both, sheen 9s var(--ease) 2.4s infinite;
+  }
+  .js:not(.reduce) .hero h1.lit .nm:nth-child(1) { animation-delay: .08s, 2.4s; }
+  .js:not(.reduce) .hero h1.lit .nm:nth-child(2) { animation-delay: .22s, 2.55s; }
+  .js:not(.reduce) .hero h1.lit .nm:nth-child(3) { animation-delay: .36s, 2.7s; }
+}
+@keyframes sheen { 0%, 80% { background-position: 0 0, 120% 0, 0 0; } 100% { background-position: 0 0, -20% 0, 0 0; } }
+
+/* ---------- Card grips and size tag (desktop mouse) ---------- */
+.grips { position: absolute; inset: -4px; z-index: 2; pointer-events: none; }
+.grips i { position: absolute; width: 8px; height: 8px; border: 1.5px solid var(--accent2); background: var(--bg); opacity: 0; transform: scale(.3); transition: opacity .2s, transform .35s var(--ease); }
+.grips i:nth-child(1) { left: 0; top: 0; }
+.grips i:nth-child(2) { right: 0; top: 0; transition-delay: .04s; }
+.grips i:nth-child(3) { right: 0; bottom: 0; transition-delay: .08s; }
+.grips i:nth-child(4) { left: 0; bottom: 0; transition-delay: .12s; }
+.grips b { position: absolute; right: 12px; top: -19px; padding: 3px 6px; font: 500 10.5px/1 var(--font-mono); letter-spacing: .03em; color: var(--accent2); background: var(--bg);
+  border: 1px solid color-mix(in srgb, var(--accent2) 45%, transparent); opacity: 0; transform: translateY(4px); transition: opacity .2s, transform .3s var(--ease); font-variant-numeric: tabular-nums; }
+.has-grips:hover .grips i, .has-grips:hover .grips b { opacity: 1; transform: none; }
+
+/* ---------- Cursor tag next to the ring (desktop mouse, effects.js) ---------- */
+.cursor-tag { position: absolute; left: calc(100% + 4px); top: calc(100% + 2px); padding: 4px 7px; font: 600 10px/1 var(--font-mono); letter-spacing: .06em; text-transform: uppercase; white-space: nowrap;
+  color: var(--on-accent); background: var(--tc, var(--accent)); opacity: 0; transform: translateY(4px); transition: opacity .18s, transform .25s var(--ease); }
+.cursor-ring.has-tag .cursor-tag { opacity: 1; transform: none; }
+
+/* ---------- Footer as a drawing title block ---------- */
+.tblock { display: flex; flex-wrap: wrap; overflow: hidden; border: 1px solid var(--line-strong); background: var(--surface); }
+.tblock > div { flex: 1 1 150px; display: flex; flex-direction: column; justify-content: center; gap: 4px; padding: 12px 16px; margin: -1px 0 0 -1px; border-left: 1px solid var(--line); border-top: 1px solid var(--line); }
+.tblock > div[hidden] { display: none; }
+.tblock .tb-main { flex: 3 1 340px; }
+.tblock .tb-main p { margin: 0; }
+.tb-k { font: 500 10.5px/1 var(--font-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.tb-v { font: 600 1.15rem/1.2 var(--font-head); color: var(--ink); }
+.tb-time { font-variant-numeric: tabular-nums; color: var(--accent); }
+.site-footer .wrap { display: block; }
+
+/* ---------- Language switch: a line runs down the screen and the text is drawn again ---------- */
+.relang-scan { position: fixed; left: 0; right: 0; top: 0; z-index: 70; height: 2px; pointer-events: none; background: var(--accent2);
+  box-shadow: 0 0 14px 2px color-mix(in srgb, var(--accent2) 55%, transparent); animation: relangScan .56s cubic-bezier(.4, 0, .2, 1) forwards; }
+.relang-scan::before { content: ""; position: absolute; left: 0; right: 0; bottom: 2px; height: 70px; background: linear-gradient(to top, color-mix(in srgb, var(--accent2) 14%, transparent), transparent); }
+@keyframes relangScan { from { transform: translateY(0); } 85% { opacity: 1; } to { transform: translateY(100vh); opacity: 0; } }
+
+/* ---------- Back to top: a frame fills up with the scroll position ---------- */
+.to-top { overflow: hidden; }
+.to-top svg.tt-ring { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
+.tt-ring rect { fill: none; stroke: var(--accent); stroke-width: 2; stroke-dasharray: 1; stroke-dashoffset: 1; }
+.js:not(.reduce) .to-top:hover svg:not(.tt-ring) { animation: ttUp .75s var(--ease) infinite; }
+@keyframes ttUp { 0% { transform: none; opacity: 1; } 45% { transform: translateY(-16px); opacity: 0; } 46% { transform: translateY(16px); opacity: 0; } 100% { transform: none; opacity: 1; } }
+
+/* ---------- Links in lists: the underline is drawn again on hover ---------- */
+.links a { text-decoration: none; background: linear-gradient(currentColor, currentColor) 0 100% / 100% 1px no-repeat; padding-bottom: 1px; }
+.js:not(.reduce) .links a:hover { animation: ulRedraw .6s var(--ease); }
+@keyframes ulRedraw { 0% { background-size: 100% 1px; background-position: 100% 100%; } 45% { background-size: 0 1px; background-position: 100% 100%; } 46% { background-size: 0 1px; background-position: 0 100%; } 100% { background-size: 100% 1px; background-position: 0 100%; } }
+
+/* ---------- Wireframe view (quick jump: "View: wireframe") ---------- */
+html.wire main *, html.wire .site-footer * { outline: 1px solid color-mix(in srgb, var(--accent2) 40%, transparent) !important; outline-offset: -1px; background-color: transparent !important; box-shadow: none !important; }
+html.wire main img { filter: grayscale(1) contrast(1.2); opacity: .5; }
+html.wire #bg-canvas { opacity: .3; }
+.wire-badge { position: fixed; right: 16px; top: calc(var(--header-h) + 14px); z-index: 55; display: inline-flex; align-items: center; gap: 8px; padding: 6px 10px; border: 1px solid var(--accent2);
+  background: var(--bg); color: var(--accent2); font: 600 11px/1 var(--font-mono); letter-spacing: .06em; text-transform: uppercase; cursor: pointer; }
+.wire-badge[hidden] { display: none; }
+.wire-badge kbd { font: inherit; padding: 2px 5px; border: 1px solid currentColor; }
+:lang(de) .rows .next dt::after { content: " (geplant)"; }
+@media (max-width: 1040px) { .rig .rig-svg { transform: scale(.9); transform-origin: 50% 100%; } }
+@media (max-width: 640px) { .site-footer { padding-bottom: 88px; } }
+:root[data-theme="hivis"] .dim-v { bottom: calc(50% + 6px); }

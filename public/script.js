@@ -455,6 +455,9 @@
       if (!r.ok) throw new Error("GitHub answered " + r.status);
       return r.json();
     }).then(function (all) {
+      // Shared with details.js, which shows the date of the last site update in the footer.
+      window.kprRepos = all;
+      try { doc.dispatchEvent(new CustomEvent("kpr:repos", { detail: all })); } catch (e) {}
       var repos = all.filter(function (r) { return !r.fork; })
         .sort(function (a, b) { return new Date(b.pushed_at) - new Date(a.pushed_at); });
       if (!repos.length) { kind = "none"; renderState(); return; }
@@ -543,6 +546,10 @@
         { label: T("js.pal.mail", "Write an email"), hint: T("js.pal.action", "Action"), run: function () { window.location.href = "mailto:" + EMAIL; } },
         { label: T("js.pal.top", "Back to top"), hint: T("js.pal.action", "Action"), run: function () { window.scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" }); } }
       );
+      // Other files can add actions here (details.js adds the wireframe view).
+      (window.kprPalExtra || []).forEach(function (make) {
+        try { var it = make(); if (it) items.push(it); } catch (e) {}
+      });
     }
     function render(q) {
       q = q.trim().toLowerCase();
