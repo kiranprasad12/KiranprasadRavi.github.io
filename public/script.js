@@ -474,6 +474,16 @@
     }
   })();
 
+  /* ---------- Endless animations wait while their section is out of view ---------- */
+  // A blinking caret, flowing energy lines or a turning light keep the browser busy on every
+  // frame, even far off screen. Each section gets "is-off" while you cannot see it.
+  if ("IntersectionObserver" in window) {
+    var offIO = new IntersectionObserver(function (es) {
+      es.forEach(function (e) { e.target.classList.toggle("is-off", !e.isIntersecting); });
+    }, { rootMargin: "100px 0px" });
+    $$("main > section, #marquee, .site-footer").forEach(function (el) { offIO.observe(el); });
+  }
+
   /* ---------- Drafting grid that drifts with the scroll ---------- */
   // It is its own layer that only moves. Changing a value on the whole page each frame would make
   // the browser restyle every element while scrolling.
@@ -804,6 +814,15 @@
     }
     return STOPS[STOPS.length - 1][1];
   }
+  // The colours are worked out once into a table, and the picture buffer is reused every frame
+  var LUT = new Uint8ClampedArray(256 * 3);
+  (function () {
+    for (var j = 0; j < 256; j++) {
+      var c = color(AMB + (MAXT - AMB) * j / 255);
+      LUT[j * 3] = c[0]; LUT[j * 3 + 1] = c[1]; LUT[j * 3 + 2] = c[2];
+    }
+  })();
+  var img = ctx.createImageData(W, H);
 
   function reset() {
     var i, x;
@@ -858,11 +877,11 @@
   }
 
   function draw() {
-    var img = ctx.createImageData(W, H), i, c, peak = AMB;
+    var d = img.data, i, j, peak = AMB;
     for (i = 0; i < W * H; i++) {
       var v = T[i]; if (i < (H - 1) * W && v > peak) peak = v;
-      c = color(v);
-      img.data[i * 4] = c[0]; img.data[i * 4 + 1] = c[1]; img.data[i * 4 + 2] = c[2]; img.data[i * 4 + 3] = 255;
+      j = Math.round(Math.max(0, Math.min(1, (v - AMB) / (MAXT - AMB))) * 255) * 3;
+      d[i * 4] = LUT[j]; d[i * 4 + 1] = LUT[j + 1]; d[i * 4 + 2] = LUT[j + 2]; d[i * 4 + 3] = 255;
     }
     ctx.putImageData(img, 0, 0);
     peakEl.textContent = Math.round(peak) + " \u00b0C";

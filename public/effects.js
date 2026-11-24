@@ -111,12 +111,16 @@
   (function () {
     var hero = doc.getElementById("home");
     if (!hero) return;
+    // The values go only on the two elements that move, so the rest of the hero is not restyled.
+    var movers = $$(".hero h1, .hero .titleblock", hero);
     var x = 0, y = 0, tx = 0, ty = 0, raf = 0;
     function step() {
       x += (tx - x) * 0.12;
       y += (ty - y) * 0.12;
-      hero.style.setProperty("--px", x.toFixed(3));
-      hero.style.setProperty("--py", y.toFixed(3));
+      for (var i = 0; i < movers.length; i++) {
+        movers[i].style.setProperty("--px", x.toFixed(3));
+        movers[i].style.setProperty("--py", y.toFixed(3));
+      }
       raf = (Math.abs(tx - x) > 0.002 || Math.abs(ty - y) > 0.002) ? requestAnimationFrame(step) : 0;
     }
     hero.addEventListener("pointermove", function (e) {

@@ -654,6 +654,9 @@ html:not(.js) #bg-glow { display: none; }
    and only runs when JavaScript is on (html.js).
    ========================================================================== */
 
+/* Sections out of view: endless animations wait until you scroll back (script.js) */
+.is-off, .is-off *, .is-off *::before, .is-off *::after { animation-play-state: paused !important; }
+
 /* Background fades in. The glows drift slowly; only their position changes, so the browser
    moves them without drawing them again. */
 .js:not(.reduce) #bg-canvas, .js:not(.reduce) #bg-glow { animation: bgIn 2s ease .1s backwards; }
@@ -760,17 +763,21 @@ html.vt::view-transition-new(root) { animation: vtReveal .75s var(--ease) both; 
 .js:not(.reduce) .marquee-track { animation: marquee 44s linear infinite; }
 @keyframes marquee { to { transform: translateX(-50%); } }
 
-/* A light runs around the border of the profile card */
-@property --beam { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
+/* A light runs around the border of the profile card. The border is a fixed mask and only the
+   light behind it turns, so the browser rotates it without drawing it again on every frame. */
 .titleblock { position: relative; }
-.js:not(.reduce) .titleblock::before { content: ""; position: absolute; inset: -1px; padding: 1px; z-index: 3; pointer-events: none;
-  background: conic-gradient(from var(--beam), transparent 0 66%, color-mix(in srgb, var(--accent) 30%, transparent) 82%, var(--accent) 95%, transparent 100%);
+.tb-beam { display: none; }
+.js:not(.reduce) .tb-beam { display: block; position: absolute; inset: -1px; padding: 1px; z-index: 3; pointer-events: none; overflow: hidden;
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-  -webkit-mask-composite: xor; mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
-  animation: beam 6s linear infinite; }
-@keyframes beam { to { --beam: 360deg; } }
+  -webkit-mask-composite: xor; mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0); }
+.tb-beam i { position: absolute; left: 50%; top: 50%; width: 220%; aspect-ratio: 1;
+  background: conic-gradient(transparent 0 66%, color-mix(in srgb, var(--accent) 30%, transparent) 82%, var(--accent) 95%, transparent 100%);
+  transform: translate(-50%, -50%); animation: beamTurn 6s linear infinite; }
+@keyframes beamTurn { to { transform: translate(-50%, -50%) rotate(360deg); } }
 
 /* Hero depth: the card and the name move a little against each other (desktop mouse, set by effects.js) */
+@property --px { syntax: "<number>"; inherits: false; initial-value: 0; }
+@property --py { syntax: "<number>"; inherits: false; initial-value: 0; }
 .js:not(.reduce) .titleblock { animation: rise .8s var(--ease) .3s backwards; transform: perspective(1100px) rotateY(calc(var(--px, 0) * 5deg)) rotateX(calc(var(--py, 0) * -4deg)); }
 .js:not(.reduce) .hero h1 { transform: translate(calc(var(--px, 0) * -10px), calc(var(--py, 0) * -6px)); }
 
