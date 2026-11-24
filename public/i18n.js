@@ -256,7 +256,7 @@
 "page.3": "Zu einem Abschnitt springen oder eine Aktion ausführen",
 "page.4": "Keine Treffer. Versuche einen Abschnittsnamen wie Fähigkeiten oder Kontakt.",
 "page.5": "Nach oben",
-"meta.title": "Kiran Prasad Ravi",
+"meta.title": "Kiran Prasad Ravi · Nutzfahrzeugtechnik",
 "meta.desc": "M.Sc.-Student der Nutzfahrzeugtechnik an der RPTU Kaiserslautern-Landau. Hybridfahrzeuge, eingebettete Systeme und maschinelles Lernen. Gesucht: ein Pflichtpraktikum in Deutschland.",
 "sec.home": "Start",
 "sec.drive": "Hybridantrieb",
