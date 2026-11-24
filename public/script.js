@@ -602,10 +602,12 @@
   remeasure();
 
   /* ---------- GitHub repositories, loaded live ---------- */
+  // The list loads when the Code section or the footer comes near, so it does not slow down the
+  // first view of the page. It is kept for the rest of the visit, so it does not load twice.
   (function () {
     var state = $("#gh-state"), list = $("#gh-repos");
     if (!state || !list) return;
-    var kind = "loading", count = 0;
+    var kind = "loading", count = 0, started = false, KEY = "kpr-repos";
     function dateLoc() { return (window.kprLang && window.kprLang() === "de") ? "de-DE" : "en-GB"; }
     function renderState() {
       if (kind === "nofetch") state.textContent = T("js.gh.nofetch", "Open my GitHub profile to see my repositories.");
@@ -619,13 +621,7 @@
     }
     onLang(renderState);
     renderState();
-    if (!window.fetch) { kind = "nofetch"; renderState(); return; }
-    fetch("https://api.github.com/users/" + GITHUB_USER + "/repos?per_page=100&sort=updated", {
-      headers: { Accept: "application/vnd.github+json" }
-    }).then(function (r) {
-      if (!r.ok) throw new Error("GitHub answered " + r.status);
-      return r.json();
-    }).then(function (all) {
+    function show(all) {
       // Shared with details.js, which shows the date of the last site update in the footer.
       window.kprRepos = all;
       try { doc.dispatchEvent(new CustomEvent("kpr:repos", { detail: all })); } catch (e) {}
@@ -661,9 +657,41 @@
       });
       list.hidden = false;
       renderState();
-    }).catch(function () {
-      kind = "fail"; renderState();
-    });
+    }
+    function load() {
+      if (started) return;
+      started = true;
+      if (!window.fetch) { kind = "nofetch"; renderState(); return; }
+      // Already loaded in the last 10 minutes of this visit
+      try {
+        var kept = JSON.parse(sessionStorage.getItem(KEY) || "null");
+        if (kept && kept.all && Date.now() - kept.t < 600000) { show(kept.all); return; }
+      } catch (e) {}
+      fetch("https://api.github.com/users/" + GITHUB_USER + "/repos?per_page=100&sort=updated", {
+        headers: { Accept: "application/vnd.github+json" }
+      }).then(function (r) {
+        if (!r.ok) throw new Error("GitHub answered " + r.status);
+        return r.json();
+      }).then(function (all) {
+        // keep only what the page uses
+        all = all.map(function (r) {
+          return { name: r.name, html_url: r.html_url, description: r.description, language: r.language, pushed_at: r.pushed_at, fork: r.fork };
+        });
+        try { sessionStorage.setItem(KEY, JSON.stringify({ t: Date.now(), all: all })); } catch (e) {}
+        show(all);
+      }).catch(function () {
+        kind = "fail"; renderState();
+      });
+    }
+    var near = [$("#code"), $(".site-footer")].filter(Boolean);
+    if ("IntersectionObserver" in window && near.length) {
+      var io = new IntersectionObserver(function (es) {
+        if (es.some(function (e) { return e.isIntersecting; })) { io.disconnect(); load(); }
+      }, { rootMargin: "1200px 0px" });
+      near.forEach(function (el) { io.observe(el); });
+    } else {
+      load();
+    }
   })();
 
   /* ---------- Contact: copy the email address ---------- */

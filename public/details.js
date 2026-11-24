@@ -309,8 +309,9 @@
     doc.body.appendChild(sbar);
     root.classList.add("has-sbar");
   }
-  clockInit();
-  clockTick();
+  // Start the clock when the browser has a quiet moment: setting up the time zone takes a while on slow phones
+  function clockStart() { clockInit(); clockTick(); }
+  if (window.requestIdleCallback) requestIdleCallback(clockStart, { timeout: 1500 }); else setTimeout(clockStart, 400);
 
   /* ---------- Scroll hook shared by the parts below ---------- */
   var scrollFns = [ttUpdate], sRaf = 0;

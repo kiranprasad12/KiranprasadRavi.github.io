@@ -15,8 +15,10 @@
 <meta content="dark light" name="color-scheme"/>
 <meta name="darkreader-lock"/>
 <link href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%230e2747'/%3E%3Crect x='6' y='6' width='52' height='52' fill='none' stroke='%23ffbf3f' stroke-width='4'/%3E%3Ctext x='32' y='43' font-family='Arial Narrow,Arial,sans-serif' font-weight='700' font-size='30' text-anchor='middle' fill='%23ffbf3f'%3EKR%3C/text%3E%3C/svg%3E" rel="icon"/>
+<link as="font" crossorigin="" href="fonts/barlow-latin-400-normal.woff2" rel="preload" type="font/woff2"/>
+<link as="font" crossorigin="" href="fonts/barlow-condensed-latin-600-normal.woff2" rel="preload" type="font/woff2"/>
 <link as="font" crossorigin="" href="fonts/barlow-condensed-latin-700-normal.woff2" rel="preload" type="font/woff2"/>
-<link href="style.css?v=23" rel="stylesheet"/>
+<link href="style.css?v=24" rel="stylesheet"/>
 <script>
     // Apply the saved theme before the page paints, so there is no flash.
     (function () {
@@ -107,10 +109,15 @@
 </div>
 <aside aria-label="Kiran at a glance" class="titleblock" data-i18n-attr="aria-label:home.12">
 <span aria-hidden="true" class="tb-beam"><i></i></span>
-<!-- PHOTO: save your picture as photo.jpg in this folder (public). -->
+<!-- PHOTO: photo.jpg in this folder (public). photo.avif and photo.webp are smaller copies of it that
+     most browsers load instead. If you change the photo, make new copies too. -->
 <figure class="photo">
 <span aria-hidden="true" class="mono" data-i18n="home.13" data-i18n-html="1">KR</span>
+<picture>
+<source srcset="photo.avif" type="image/avif"/>
+<source srcset="photo.webp" type="image/webp"/>
 <img alt="Portrait of Kiran Prasad Ravi" data-i18n-attr="alt:home.14" height="1000" onerror="this.remove()" src="photo.jpg" width="800"/>
+</picture>
 </figure>
 <dl>
 <div><dt data-i18n="home.15" data-i18n-html="1">Studying</dt><dd data-i18n="home.16" data-i18n-html="1">M.Sc. Commercial Vehicle Technology</dd></div>
@@ -749,9 +756,9 @@
 <div aria-live="polite" class="toast" id="toast" role="status"></div>
 <button aria-label="Back to top" class="to-top" data-i18n-attr="aria-label:page.5" id="to-top" type="button"><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"></path></svg></button>
 <script src="i18n.js?v=12"></script>
-  <script src="script.js?v=15"></script>
+  <script src="script.js?v=16"></script>
   <script defer src="background.js?v=6"></script>
   <script defer src="effects.js?v=6"></script>
-  <script defer src="details.js?v=4"></script>
+  <script defer src="details.js?v=5"></script>
 </body>
 </html>

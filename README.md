@@ -11,7 +11,8 @@ A static site (HTML, CSS and a little JavaScript). No build step, no frameworks.
 - `public/details.js` has the detail layer: the intro on the first visit, the truck on the progress line, the status bar,
   dimension lines, drawing zones, the footer clock and the wireframe view (quick jump, Ctrl K)
 - `public/fonts/` holds the self-hosted Barlow fonts (OFL license included)
-- `public/photo.jpg` is the portrait shown in the hero
+- `public/photo.jpg` is the portrait shown in the hero. `photo.avif` and `photo.webp` are smaller copies that
+  most browsers load instead; if you change the photo, make new copies too
 
 ## Publish
 
