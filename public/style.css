@@ -328,7 +328,6 @@ button { font: inherit; color: inherit; }
 .xhair::before, .xhair::after { content: ""; position: absolute; background: var(--accent2); opacity: .45; }
 .xhair::before { left: 0; right: 0; top: var(--cy, 0); height: 1px; }
 .xhair::after { top: 0; bottom: 0; left: var(--cx, 0); width: 1px; }
-.xhair span { position: absolute; left: calc(var(--cx, 0) + 10px); top: calc(var(--cy, 0) + 8px); padding: 0 6px; font-size: .8rem; color: var(--accent2); background: var(--bg); border: 1px solid var(--line); }
 
 .drive-ui { flex: none; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 12px 28px; align-items: start; }
 .modes { display: flex; flex-wrap: wrap; gap: 8px; }
@@ -906,7 +905,6 @@ html.replay .hero, html.replay .hero *, html.replay .hero *::before, html.replay
   .sbar .sb-led { width: 40px; padding: 0; justify-content: center; }
   .sbar .sb-led::before { content: ""; width: 6px; height: 6px; background: var(--c-sim); box-shadow: 0 0 8px var(--c-sim); animation: led 2.4s ease-in-out infinite; }
   .sbar .sb-sp { flex: 1; padding: 0; }
-  .sbar [data-k="x"], .sbar [data-k="y"] { min-width: 5ch; text-align: right; }
   .sbar .sb-mode { min-width: 6ch; color: var(--accent2); }
   .sbar .sb-mode[data-m="ev"] { color: var(--c-sim); }
   .sbar .sb-mode[data-m="regen"] { color: var(--accent2); }
@@ -920,16 +918,12 @@ html.replay .hero, html.replay .hero *, html.replay .hero *::before, html.replay
 @keyframes sbarIn { from { transform: translateY(100%); } }
 @keyframes led { 50% { opacity: .3; } }
 
-/* ---------- Dimension lines: arrowheads and the measured length ---------- */
+/* ---------- Dimension lines: arrowheads ---------- */
 .dim { position: relative; }
 .dim::before, .dim::after { content: ""; position: absolute; top: 50%; margin-top: -3px; border-block: 3px solid transparent; pointer-events: none; }
 .dim::before { left: 1px; border-right: 8px solid var(--line-strong); }
 .dim::after { right: 1px; border-left: 8px solid var(--line-strong); }
 .dim.is-tiny::before, .dim.is-tiny::after { display: none; }
-.dim-v { position: absolute; left: 50%; bottom: calc(50% + 3px); transform: translateX(-50%); padding: 0 4px; font: 500 10.5px/1 var(--font-mono); letter-spacing: .03em; color: var(--muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
-.dim.is-short .dim-v { display: none; }
-.js [data-reveal="head"] .dim { clip-path: inset(-14px 100% -14px 0); }
-.js [data-reveal="head"].in .dim { clip-path: inset(-14px 0 -14px 0); }
 /* headings now decode letter by letter (details.js) instead of the blur */
 .js:not(.reduce) [data-reveal="head"] h2 { filter: none; transition: clip-path .9s var(--ease), transform .9s var(--ease); }
 
@@ -969,16 +963,14 @@ html.replay .hero, html.replay .hero *, html.replay .hero *::before, html.replay
 }
 @keyframes sheen { 0%, 80% { background-position: 0 0, 120% 0, 0 0; } 100% { background-position: 0 0, -20% 0, 0 0; } }
 
-/* ---------- Card grips and size tag (desktop mouse) ---------- */
+/* ---------- Card grips (desktop mouse) ---------- */
 .grips { position: absolute; inset: -4px; z-index: 2; pointer-events: none; }
 .grips i { position: absolute; width: 8px; height: 8px; border: 1.5px solid var(--accent2); background: var(--bg); opacity: 0; transform: scale(.3); transition: opacity .2s, transform .35s var(--ease); }
 .grips i:nth-child(1) { left: 0; top: 0; }
 .grips i:nth-child(2) { right: 0; top: 0; transition-delay: .04s; }
 .grips i:nth-child(3) { right: 0; bottom: 0; transition-delay: .08s; }
 .grips i:nth-child(4) { left: 0; bottom: 0; transition-delay: .12s; }
-.grips b { position: absolute; right: 12px; top: -19px; padding: 3px 6px; font: 500 10.5px/1 var(--font-mono); letter-spacing: .03em; color: var(--accent2); background: var(--bg);
-  border: 1px solid color-mix(in srgb, var(--accent2) 45%, transparent); opacity: 0; transform: translateY(4px); transition: opacity .2s, transform .3s var(--ease); font-variant-numeric: tabular-nums; }
-.has-grips:hover .grips i, .has-grips:hover .grips b { opacity: 1; transform: none; }
+.has-grips:hover .grips i { opacity: 1; transform: none; }
 
 /* ---------- Cursor tag next to the ring (desktop mouse, effects.js) ---------- */
 .cursor-tag { position: absolute; left: calc(100% + 4px); top: calc(100% + 2px); padding: 4px 7px; font: 600 10px/1 var(--font-mono); letter-spacing: .06em; text-transform: uppercase; white-space: nowrap;
@@ -1025,7 +1017,6 @@ html.wire #bg-canvas { opacity: .3; }
 :lang(de) .rows .next dt::after { content: " (geplant)"; }
 @media (max-width: 1040px) { .rig .rig-svg { transform: scale(.9); transform-origin: 50% 100%; } }
 @media (max-width: 640px) { .site-footer { padding-bottom: 88px; } }
-:root[data-theme="hivis"] .dim-v { bottom: calc(50% + 6px); }
 
 /* ---------- Seamless pass: hybrid demo on phones, reveals, taps ---------- */
 @media (min-width: 1200px) and (hover: hover) and (pointer: fine) { html.has-sbar .drive { --foot-h: 26px; } }

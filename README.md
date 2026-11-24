@@ -9,7 +9,7 @@ A static site (HTML, CSS and a little JavaScript). No build step, no frameworks.
 - `public/background.js` draws the animated background (dots, lines and dials)
 - `public/effects.js` has the small desktop effects (card tilt, cursor ring, menu underline) and the keyword band speed
 - `public/details.js` has the detail layer: the intro on the first visit, the truck on the progress line, the status bar,
-  measured dimension lines, drawing zones, the footer clock and the wireframe view (quick jump, Ctrl K)
+  dimension lines, drawing zones, the footer clock and the wireframe view (quick jump, Ctrl K)
 - `public/fonts/` holds the self-hosted Barlow fonts (OFL license included)
 - `public/photo.jpg` is the portrait shown in the hero
 

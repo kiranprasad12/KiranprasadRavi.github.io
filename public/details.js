@@ -1,18 +1,17 @@
 /* Kiran Prasad Ravi, personal site.
    Detail layer: small engineering touches on top of the page. Nothing here is needed to read it.
    - Everyone: a short intro on the first visit in a tab (a roller door opens), a small hybrid
-     truck that drives along the progress line, headings that decode, dimension lines that show
-     their real length, drawing zones around the hero sheet, number roll-ups, a live local time
+     truck that drives along the progress line, headings that decode, dimension lines with
+     arrowheads, drawing zones around the hero sheet, number roll-ups, a live local time
      in the footer, a redraw line when the language changes, a progress frame on "back to top".
-   - Desktop with a mouse: a CAD-style status bar, grips and sizes on cards, the name lit by the pointer.
-   - "Reduce motion": only the still parts stay (measurements, zones, clock, progress frame).
+   - Desktop with a mouse: a CAD-style status bar, grips on cards, the name lit by the pointer.
+   - "Reduce motion": only the still parts stay (zones, clock, progress frame).
    If this file fails, the page still works. */
 (function () {
   "use strict";
   var doc = document, root = doc.documentElement;
   var reduce = root.classList.contains("reduce");
   var fine = !!(window.matchMedia && matchMedia("(hover: hover) and (pointer: fine)").matches);
-  var MM = 25.4 / 96;                                   // CSS pixels to millimetres
   function $(s, c) { return (c || doc).querySelector(s); }
   function $$(s, c) { return Array.prototype.slice.call((c || doc).querySelectorAll(s)); }
   function T(k, en) { return window.kprT ? window.kprT(k, en) : en; }
@@ -148,40 +147,14 @@
     requestAnimationFrame(frame);
   })();
 
-  /* ---------- 2. Dimension lines show their real length in millimetres ---------- */
-  var dims = $$(".sec-head .dim").map(function (d) {
-    var v = doc.createElement("span");
-    v.className = "dim-v";
-    d.appendChild(v);
-    return { el: d, v: v, head: d.parentNode, val: 0, shown: reduce, counting: false };
-  });
-  function dimMeasure(o) {
-    var w = o.el.offsetWidth;
-    o.el.classList.toggle("is-short", w < 104);
-    o.el.classList.toggle("is-tiny", w < 36);
-    o.val = w * MM;
-  }
-  function dimsRefresh() {
-    dims.forEach(function (o) { dimMeasure(o); if (o.shown && !o.counting) o.v.textContent = num(o.val, 1); });
-  }
+  /* ---------- 2. Dimension lines: no arrowheads where a line is very short ---------- */
+  var dims = $$(".sec-head .dim");
+  function dimsRefresh() { dims.forEach(function (d) { d.classList.toggle("is-tiny", d.offsetWidth < 36); }); }
   dimsRefresh();
   window.addEventListener("resize", debounce(dimsRefresh, 150));
   window.addEventListener("load", dimsRefresh);
   if (doc.fonts && doc.fonts.ready) doc.fonts.ready.then(dimsRefresh);
   onLang(function () { setTimeout(dimsRefresh, 30); });
-  function dimCount(o) {
-    var start = 0;
-    o.counting = true;
-    dimMeasure(o);
-    function f(now) {
-      if (!start) start = now + 250;                     // the line starts drawing a little later
-      var k = clamp((now - start) / 1100, 0, 1);
-      o.v.textContent = num(o.val * (1 - Math.pow(1 - k, 3)), 1);
-      if (k < 1) requestAnimationFrame(f);
-      else { o.counting = false; o.shown = true; o.v.textContent = num(o.val, 1); }
-    }
-    requestAnimationFrame(f);
-  }
 
   /* ---------- 3. Drawing zones around the hero sheet, like a real drawing frame ---------- */
   (function () {
@@ -308,10 +281,8 @@
     sbar.setAttribute("aria-hidden", "true");
     sbar.innerHTML =
       '<span class="sb-led"></span>' +
-      '<span><i>X</i><b data-k="x">0.0</b><i>Y</i><b data-k="y">0.0</b><em>mm</em></span>' +
       '<span><b data-k="sheet">01/01</b><em data-k="sec"></em></span>' +
       '<span><b class="sb-mode" data-k="mode" data-m="ready"></b><i>SOC</i><b data-k="soc">82</b><em>%</em><b data-k="v">00</b><em>km/h</em><em class="sb-lim">LIMIT</em></span>' +
-      '<span><i>ODO</i><b data-k="odo">0.0</b><em>m</em></span>' +
       '<span class="sb-sp"></span>' +
       '<span><i>↕</i><b data-k="pct">0</b><em>%</em></span>' +
       '<span><i>Kaiserslautern</i><b data-k="time">--:--:--</b><em data-k="tz"></em></span>';
@@ -392,7 +363,6 @@
         if (!e.isIntersecting) return;
         headIO.unobserve(e.target);
         decode($("h2", e.target), 900);
-        dims.forEach(function (o) { if (o.head === e.target && !o.shown && !o.counting) dimCount(o); });
       });
     }, { threshold: 0.18, rootMargin: "0px 0px -6% 0px" });
     $$(".sec-head").forEach(function (h) { headIO.observe(h); });
@@ -434,8 +404,6 @@
       }
     });
   } else {
-    dims.forEach(function (o) { o.shown = true; });
-    dimsRefresh();
     valsDone = true;
   }
   // The profile card labels decode as the card comes in
@@ -497,7 +465,6 @@
     sb.soc.textContent = Math.round(car.soc);
     sb.mode.textContent = MODE[car.mode]();
     sb.mode.setAttribute("data-m", car.mode);
-    sb.odo.textContent = num(car.odo, 1);
     sbar.classList.toggle("is-lim", sp > 0.985);
   }
   function carTick(now) {
@@ -546,15 +513,11 @@
   // After the intro the truck drives in from the left edge
   afterBoot(function () { setTimeout(function () { parked = false; carKick(); }, 350); });
 
-  /* ---------- 11. CAD status bar: pointer position, sheet, energy manager, time ---------- */
+  /* ---------- 11. CAD status bar: sheet, energy manager, time ---------- */
   if (sbar) {
-    var secs = $$("[data-sec]"), ptr = { x: -1, y: -1 }, sRaf2 = 0;
+    var secs = $$("[data-sec]"), sRaf2 = 0;
     var sbUpdate = function () {
       sRaf2 = 0;
-      if (ptr.x >= 0) {
-        sb.x.textContent = num((ptr.x + (window.pageXOffset || 0)) * MM, 1);
-        sb.y.textContent = num((ptr.y + (window.pageYOffset || 0)) * MM, 1);
-      }
       sb.pct.textContent = Math.round(scrollP() * 100);
       var mid = window.innerHeight * 0.4, cur = 0;
       for (var i = 0; i < secs.length; i++) if (secs[i].getBoundingClientRect().top <= mid) cur = i;
@@ -564,30 +527,21 @@
       }
     };
     var sbKick = function () { if (!sRaf2) sRaf2 = requestAnimationFrame(sbUpdate); };
-    doc.addEventListener("pointermove", function (e) {
-      if (e.pointerType === "touch") return;
-      ptr.x = e.clientX; ptr.y = e.clientY;
-      sbKick();
-    }, { passive: true });
     scrollFns.push(sbKick);
     onLang(function () { setTimeout(function () { sbUpdate(); sbarCar(0); }, 0); });
     sbUpdate();
     sbarCar(0);
   }
 
-  /* ---------- 12. Cards: grips in the corners and the size in millimetres (desktop) ---------- */
+  /* ---------- 12. Cards: grips in the corners when the mouse is over them (desktop) ---------- */
   if (fine) {
     $$(".proj, .pillar, .panel").forEach(function (card) {
       var g = doc.createElement("span");
       g.className = "grips";
       g.setAttribute("aria-hidden", "true");
-      g.innerHTML = "<i></i><i></i><i></i><i></i><b></b>";
+      g.innerHTML = "<i></i><i></i><i></i><i></i>";
       card.appendChild(g);
       card.classList.add("has-grips");
-      var tag = g.lastChild;
-      card.addEventListener("pointerenter", function () {
-        tag.textContent = num(card.offsetWidth * MM, 1) + " × " + num(card.offsetHeight * MM, 1) + " mm";
-      });
     });
   }
 

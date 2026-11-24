@@ -385,18 +385,12 @@
     window.addEventListener("load", function () { setTimeout(function () { decidePin(); window.driveKick(); }, 60); });
 
     /* CAD-style cursor over the drawing */
-    var xh = $("#xhair"), xt = $("#xhair-t");
+    var xh = $("#xhair");
     if (canvas && xh && window.matchMedia && matchMedia("(pointer: fine)").matches) {
       canvas.addEventListener("pointermove", function (e) {
         var r = canvas.getBoundingClientRect();
-        var x = e.clientX - r.left, y = e.clientY - r.top;
-        xh.style.setProperty("--cx", x + "px");
-        xh.style.setProperty("--cy", y + "px");
-        var vb = truck.viewBox && truck.viewBox.baseVal;
-        var bx = vb ? vb.x : 0, by = vb ? vb.y : 0, bw = vb && vb.width ? vb.width : 1000, bh = vb && vb.height ? vb.height : 424;
-        var sc = Math.min(r.width / bw, r.height / bh);
-        var ox = (r.width - bw * sc) / 2, oy = (r.height - bh * sc) / 2;
-        if (xt) xt.textContent = "x " + Math.round((x - ox) / sc + bx) + "  y " + Math.round((y - oy) / sc + by);
+        xh.style.setProperty("--cx", (e.clientX - r.left) + "px");
+        xh.style.setProperty("--cy", (e.clientY - r.top) + "px");
         xh.classList.add("on");
       });
       canvas.addEventListener("pointerleave", function () { xh.classList.remove("on"); });

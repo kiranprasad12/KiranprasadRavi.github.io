@@ -3,7 +3,7 @@
    - Desktop: the mouse gently pushes the dots away and draws lines to the nearest ones.
    - Phone: fewer dots, a lower frame rate, and the network drifts with your scroll.
    - Click or tap on an empty spot: a wave runs out from that point, pushes the dots aside
-     and marks the point with its coordinates in millimetres.
+     and marks the point.
    - It follows the colour theme, pauses when the tab is hidden, and shows one still
      picture when "reduce motion" is on. If anything fails, the page still works. */
 (function () {
@@ -24,7 +24,7 @@
   var W = 0, H = 0, dpr = 1;
   var small = mqSmall.matches;
   var nodes = [], pulses = [], links = [], waves = [];
-  var WAVE_LIFE = 1.4, WAVE_SPEED = 620, MM = 25.4 / 96;
+  var WAVE_LIFE = 1.4, WAVE_SPEED = 620;
   var col = { a: "116,212,255", b: "255,191,63", dark: true };
   var pointer = { x: -9999, y: -9999, on: false };
   var par = { x: 0, y: 0 };
@@ -234,7 +234,7 @@
       }
     }
 
-    // Click waves: two rings and a marked point with its coordinates
+    // Click waves: two rings and a marked point
     if (!still) {
       for (i = 0; i < waves.length; i++) {
         var wv = waves[i], age = wv.age / WAVE_LIFE, R = wv.age * WAVE_SPEED, al = 1 - age;
@@ -252,11 +252,6 @@
           ctx.moveTo(wv.x, wv.y - 10); ctx.lineTo(wv.x, wv.y - 3); ctx.moveTo(wv.x, wv.y + 3); ctx.lineTo(wv.x, wv.y + 10);
           ctx.stroke();
           ctx.beginPath(); ctx.arc(wv.x, wv.y, 5, 0, 6.2832); ctx.stroke();
-          ctx.font = "500 10px ui-monospace, Menlo, Consolas, monospace";
-          ctx.fillStyle = "rgba(" + col.b + "," + (0.9 * mk) + ")";
-          var tw = ctx.measureText(wv.label).width;
-          // keep the label on screen: put it on the left of the point near the right edge
-          ctx.fillText(wv.label, wv.x + 12 + tw > W - 6 ? wv.x - 12 - tw : wv.x + 12, wv.y < 24 ? wv.y + 20 : wv.y - 9);
         }
       }
     }
@@ -330,9 +325,7 @@
     var t = e.target;
     if (!t || !t.closest || t.closest("a, button, input, select, textarea, label, summary, [role='radio'], [role='dialog'], .chip, .drive-canvas, .rl-svg, .th-fig, .ruler, .boot, .sbar")) return;
     if (window.getSelection && String(window.getSelection())) return;
-    var de = window.kprLang && window.kprLang() === "de";
-    function f(v) { var s = (v * MM).toFixed(1); return de ? s.replace(".", ",") : s; }
-    waves.push({ x: e.clientX, y: e.clientY, age: 0, label: "X " + f(e.pageX) + "  Y " + f(e.pageY) });
+    waves.push({ x: e.clientX, y: e.clientY, age: 0 });
     if (waves.length > 4) waves.shift();
     start();
   });
