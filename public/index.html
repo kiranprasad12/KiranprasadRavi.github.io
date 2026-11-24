@@ -10,9 +10,13 @@
 <meta content="M.Sc. student at RPTU Kaiserslautern-Landau. Simulation, machine learning and embedded sensing." property="og:description"/>
 <meta content="website" property="og:type"/>
 <meta content="#0e2747" name="theme-color"/>
+<!-- The site has its own dark and light themes. These two lines ask browsers with an automatic
+     dark mode, and the Dark Reader extension, not to recolour it (that hid the hybrid demo). -->
+<meta content="dark light" name="color-scheme"/>
+<meta name="darkreader-lock"/>
 <link href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%230e2747'/%3E%3Crect x='6' y='6' width='52' height='52' fill='none' stroke='%23ffbf3f' stroke-width='4'/%3E%3Ctext x='32' y='43' font-family='Arial Narrow,Arial,sans-serif' font-weight='700' font-size='30' text-anchor='middle' fill='%23ffbf3f'%3EKR%3C/text%3E%3C/svg%3E" rel="icon"/>
 <link as="font" crossorigin="" href="fonts/barlow-condensed-latin-700-normal.woff2" rel="preload" type="font/woff2"/>
-<link href="style.css?v=16" rel="stylesheet"/>
+<link href="style.css?v=18" rel="stylesheet"/>
 <script>
     // Apply the saved theme before the page paints, so there is no flash.
     (function () {
@@ -146,6 +150,11 @@
 <pattern height="9" id="hatch" patterntransform="rotate(45)" patternunits="userSpaceOnUse" width="9">
 <line class="hatch-line" x1="0" x2="0" y1="0" y2="9"></line>
 </pattern>
+<!-- arrowheads for the energy flows, one per energy colour -->
+<marker id="ah-fuel" markerHeight="14" markerUnits="userSpaceOnUse" markerWidth="14" orient="auto" refX="10" refY="7" viewBox="0 0 14 14"><path class="ah ah-fuel" d="M2,2 L12,7 L2,12 Z"></path></marker>
+<marker id="ah-elec" markerHeight="14" markerUnits="userSpaceOnUse" markerWidth="14" orient="auto" refX="10" refY="7" viewBox="0 0 14 14"><path class="ah ah-elec" d="M2,2 L12,7 L2,12 Z"></path></marker>
+<marker id="ah-drive" markerHeight="14" markerUnits="userSpaceOnUse" markerWidth="14" orient="auto" refX="10" refY="7" viewBox="0 0 14 14"><path class="ah ah-drive" d="M2,2 L12,7 L2,12 Z"></path></marker>
+<marker id="ah-regen" markerHeight="14" markerUnits="userSpaceOnUse" markerWidth="14" orient="auto" refX="10" refY="7" viewBox="0 0 14 14"><path class="ah ah-regen" d="M2,2 L12,7 L2,12 Z"></path></marker>
 </defs>
 <!-- ground -->
 <rect data-e=".12" data-s="0" fill="url(#hatch)" height="10" width="840" x="90" y="366"></rect>
@@ -196,20 +205,20 @@
 <rect class="soc" height="24" width="142" x="474" y="280"></rect>
 </g>
 <!-- energy flows -->
-<path class="flow" d="M296,229 H368 V298" data-flow="e2m"></path>
-<path class="flow" d="M470,292 H402 V298" data-flow="b2m"></path>
-<path class="flow" d="M402,298 V292 H470" data-flow="m2b"></path>
-<path class="flow" d="M420,320 H745" data-flow="m2w"></path>
-<path class="flow" d="M745,320 H420" data-flow="w2m"></path>
+<path class="flow" d="M296,229 H368 V298" data-flow="e2m" marker-end="url(#ah-fuel)"></path>
+<path class="flow" d="M470,292 H402 V298" data-flow="b2m" marker-end="url(#ah-elec)"></path>
+<path class="flow" d="M402,298 V292 H470" data-flow="m2b" marker-end="url(#ah-regen)"></path>
+<path class="flow" d="M420,320 H745" data-flow="m2w" marker-end="url(#ah-drive)"></path>
+<path class="flow" d="M745,320 H420" data-flow="w2m" marker-end="url(#ah-regen)"></path>
 <!-- labels -->
-<path class="leader" d="M248,206 V136" data-e=".8" data-s=".72" pathlength="1"></path>
-<text class="tr-label" data-e=".82" data-i18n="drive.5" data-i18n-html="1" data-s=".74" x="248" y="128">Engine</text>
-<path class="leader" d="M385,342 V378" data-e=".8" data-s=".72" pathlength="1"></path>
-<text class="tr-label" data-e=".82" data-i18n="drive.6" data-i18n-html="1" data-s=".74" x="385" y="396">Electric motor</text>
-<path class="leader" d="M545,276 V246" data-e=".8" data-s=".72" pathlength="1"></path>
-<text class="tr-label" data-e=".82" data-i18n="drive.7" data-i18n-html="1" data-s=".74" x="545" y="238">Battery</text>
-<path class="leader" d="M745,366 V378" data-e=".8" data-s=".72" pathlength="1"></path>
-<text class="tr-label" data-e=".82" data-i18n="drive.8" data-i18n-html="1" data-s=".74" x="745" y="396">Drive axle</text>
+<path class="leader" d="M248,206 V136" data-for="engine" data-e=".8" data-s=".72" pathlength="1"></path>
+<text class="tr-label" data-e=".82" data-for="engine" data-i18n="drive.5" data-i18n-html="1" data-s=".74" x="248" y="128">Engine</text>
+<path class="leader" d="M385,342 V378" data-for="motor" data-e=".8" data-s=".72" pathlength="1"></path>
+<text class="tr-label" data-e=".82" data-for="motor" data-i18n="drive.6" data-i18n-html="1" data-s=".74" x="385" y="396">Electric motor</text>
+<path class="leader" d="M545,276 V246" data-for="battery" data-e=".8" data-s=".72" pathlength="1"></path>
+<text class="tr-label" data-e=".82" data-for="battery" data-i18n="drive.7" data-i18n-html="1" data-s=".74" x="545" y="238">Battery</text>
+<path class="leader" d="M745,366 V378" data-for="axle" data-e=".8" data-s=".72" pathlength="1"></path>
+<text class="tr-label" data-e=".82" data-for="axle" data-i18n="drive.8" data-i18n-html="1" data-s=".74" x="745" y="396">Drive axle</text>
 <!-- dimension line -->
 <path class="dr faint dimln" d="M140,406 V422 M140,414 H370" data-e=".86" data-s=".76" pathlength="1"></path>
 <path class="dr faint dimln" d="M890,406 V422 M890,414 H660" data-e=".86" data-s=".76" pathlength="1"></path>
@@ -228,6 +237,7 @@
 <p id="mode-text">The battery powers the electric motor. The engine is off.</p>
 <p class="status" id="mode-status">Battery is discharging</p>
 </div>
+<ul aria-label="Colour key" class="pw-key" data-i18n-attr="aria-label:drive.24"><li class="k-fuel" data-i18n="drive.25">Engine power</li><li class="k-elec" data-i18n="drive.26">Electric power</li><li class="k-drive" data-i18n="drive.27">Drive to the wheels</li><li class="k-regen" data-i18n="drive.28">Recovered braking energy</li></ul>
 <p class="drive-note" data-i18n="drive.17" data-i18n-html="1">A simplified diagram of a hybrid powertrain, to explain the idea. It is not a drawing of my simulation model.</p>
 </div>
 </div>
@@ -754,8 +764,8 @@
 </div>
 <div aria-live="polite" class="toast" id="toast" role="status"></div>
 <button aria-label="Back to top" class="to-top" data-i18n-attr="aria-label:page.5" id="to-top" type="button"><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"></path></svg></button>
-<script src="i18n.js?v=10"></script>
-  <script src="script.js?v=10"></script>
+<script src="i18n.js?v=11"></script>
+  <script src="script.js?v=11"></script>
   <script defer src="background.js?v=4"></script>
   <script defer src="effects.js?v=4"></script>
   <script defer src="details.js?v=2"></script>

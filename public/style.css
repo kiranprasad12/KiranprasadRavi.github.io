@@ -37,7 +37,8 @@
   --stripe: none;
 }
 :root[data-theme="paper"] {
-  color-scheme: light;
+  /* "only light": browsers with an automatic dark mode must not recolour this light theme */
+  color-scheme: only light;
   --bg: #eef2f6;
   --bg-2: #e3e9f0;
   --surface: rgba(20, 33, 61, .04);
@@ -1056,3 +1057,70 @@ a, button, label, [role="radio"] { -webkit-tap-highlight-color: transparent; }
   background-size: 24px 24px, 24px 24px, 120px 120px, 120px 120px; }
 @supports (height: 100lvh) { .grid-layer { height: calc(100lvh + 120px); } }
 html.has-grid-layer body::before { display: none; }
+
+/* ==========================================================================
+   Hybrid demo colours. Each kind of energy has its own colour, in every theme:
+   orange = engine and fuel, blue = electric, yellow = drive to the wheels,
+   teal-green = energy recovered when braking. (Based on a colour-blind safe palette.)
+   ========================================================================== */
+:root[data-theme="blueprint"] { --pw-fuel: #ff9f45; --pw-elec: #5ec2ff; --pw-drive: #ffe14d; --pw-regen: #2fd6a3; --pw-glow: 1; }
+:root[data-theme="paper"]     { --pw-fuel: #c2410c; --pw-elec: #0369a1; --pw-drive: #a16207; --pw-regen: #047857; --pw-glow: 0; }
+:root[data-theme="hivis"]     { --pw-fuel: #ff9f45; --pw-elec: #5cc8ff; --pw-drive: #f5c518; --pw-regen: #34d399; --pw-glow: 1; }
+
+/* parts: dim when idle, full colour (and a soft glow on dark themes) when they work */
+.truck [data-comp="engine"], .truck [data-for="engine"] { --pc: var(--pw-fuel); }
+.truck [data-comp="motor"], .truck [data-for="motor"] { --pc: var(--pw-elec); }
+.truck [data-comp="battery"], .truck [data-for="battery"] { --pc: var(--pw-regen); }
+.truck [data-for="axle"] { --pc: var(--pw-drive); }
+.truck .comp { stroke: color-mix(in srgb, var(--pc) 55%, transparent); fill: var(--pc); --base: .08; transition: stroke .35s, fill-opacity .35s, filter .35s; }
+.truck .comp.is-on { stroke: var(--pc); --base: .34; }
+:root:not([data-theme="paper"]) .is-live .truck .comp.is-on { filter: drop-shadow(0 0 7px color-mix(in srgb, var(--pc) 70%, transparent)); }
+.truck .tr-label[data-for] { fill: var(--pc); }
+.truck .leader[data-for] { stroke: color-mix(in srgb, var(--pc) 70%, transparent); }
+.truck .cell { stroke: var(--pw-regen); }
+.truck .soc { fill: var(--pw-regen); }
+.bat-charge .truck .soc { filter: drop-shadow(0 0 5px color-mix(in srgb, var(--pw-regen) 80%, transparent)); }
+.truck .shaft { stroke: var(--pw-drive); opacity: .5; }
+
+/* energy flows: coloured by kind, with an arrowhead that shows the direction (also without motion) */
+.truck .flow[data-flow="e2m"] { --fc: var(--pw-fuel); }
+.truck .flow[data-flow="b2m"] { --fc: var(--pw-elec); }
+.truck .flow[data-flow="m2w"] { --fc: var(--pw-drive); }
+.truck .flow[data-flow="w2m"], .truck .flow[data-flow="m2b"] { --fc: var(--pw-regen); }
+.truck .flow { stroke: var(--fc); stroke-width: 5; stroke-linecap: round; stroke-dasharray: 7 10; }
+:root:not([data-theme="paper"]) .truck .flow.is-flow { filter: drop-shadow(0 0 5px color-mix(in srgb, var(--fc) 75%, transparent)); }
+.truck .ah { stroke: none; }
+.truck .ah-fuel { fill: var(--pw-fuel); }
+.truck .ah-elec { fill: var(--pw-elec); }
+.truck .ah-drive { fill: var(--pw-drive); }
+.truck .ah-regen { fill: var(--pw-regen); }
+
+/* mode buttons carry the colour of the energy they use */
+.mode-btn::before { content: ""; display: inline-block; width: 9px; height: 9px; margin-right: 9px; vertical-align: 0; background: var(--mc, var(--accent)); box-shadow: 0 0 0 1.5px color-mix(in srgb, currentColor 35%, transparent); }
+.mode-btn[data-mode="electric"] { --mc: var(--pw-elec); }
+.mode-btn[data-mode="engine"] { --mc: var(--pw-fuel); }
+.mode-btn[data-mode="boost"] { --mc: linear-gradient(90deg, var(--pw-fuel) 50%, var(--pw-elec) 50%); }
+.mode-btn[data-mode="braking"] { --mc: var(--pw-regen); }
+.bat-drain .mode-info .status { color: var(--pw-elec); }
+.bat-charge .mode-info .status { color: var(--pw-regen); }
+.bat-hold .mode-info .status { color: var(--muted); }
+
+/* colour key */
+.pw-key { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 4px 20px; list-style: none; margin: 0; padding: 0; font-size: .9rem; color: var(--muted); }
+.pw-key li { display: inline-flex; align-items: center; gap: 8px; }
+.pw-key li::before { content: ""; flex: none; width: 24px; height: 4px; border-radius: 2px; background: repeating-linear-gradient(90deg, var(--kc) 0 7px, transparent 7px 11px); }
+.k-fuel { --kc: var(--pw-fuel); }
+.k-elec { --kc: var(--pw-elec); }
+.k-drive { --kc: var(--pw-drive); }
+.k-regen { --kc: var(--pw-regen); }
+@media (max-width: 640px) { .pw-key { gap: 2px 14px; font-size: .84rem; } }
+.is-live .truck .comp { transition: stroke .35s, fill-opacity .35s, filter .35s; }
+/* Phones: a compact demo panel, so the pinned version fits on more screens */
+@media (max-width: 640px) {
+  .modes { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .mode-btn { padding: 8px 10px; text-align: left; }
+  .drive-ui { gap: 10px; }
+  .mode-info p { font-size: .98rem; line-height: 1.45; }
+  .pw-key { font-size: .8rem; gap: 1px 12px; }
+  .drive-note { font-size: .8rem; line-height: 1.45; }
+}

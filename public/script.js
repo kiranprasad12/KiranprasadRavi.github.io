@@ -316,7 +316,8 @@
       var head = $(".drive-head", stage).offsetHeight, ui = $(".drive-ui", stage).offsetHeight;
       var drawH = canvas.clientWidth * vb[3] / vb[2];
       // the drawing may shrink to fit, but it should keep at least about 240 px (less on phones)
-      var need = head + ui + Math.max(130, Math.min(drawH * 0.82, 240)) + 48;
+      var phone = window.innerWidth <= 640;
+      var need = head + ui + Math.max(phone ? 105 : 130, Math.min(drawH * (phone ? 0.75 : 0.82), 240)) + 48;
       var on = avail >= need && avail >= 380;
       if (on !== pin) { pin = on; driveSec.classList.toggle("is-pin", on); }
       if (!pin && canvasVisible()) autoGo = true;
