@@ -622,7 +622,7 @@
     });
   })();
 
-  /* ---------- Contact: copy email, mail form, CV button ---------- */
+  /* ---------- Contact: copy the email address ---------- */
   function copyEmail() {
     function done() { toast(T("js.toast.copied", "Email address copied")); }
     if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -638,19 +638,6 @@
   }
   var copyBtn = $("#copy-email");
   if (copyBtn) copyBtn.addEventListener("click", copyEmail);
-
-  var form = $("#contact-form");
-  if (form) {
-    form.addEventListener("submit", function (e) {
-      e.preventDefault();
-      var name = $("#f-name").value.trim();
-      var topic = $("#f-topic").value;
-      var msg = $("#f-msg").value.trim();
-      var body = (msg || T("js.mail.hello", "Hello Kiran,")) + (name ? "\n\n" + T("js.mail.from", "From: ") + name : "");
-      window.location.href = "mailto:" + EMAIL + "?subject=" + encodeURIComponent("Portfolio: " + topic) + "&body=" + encodeURIComponent(body);
-      toast(T("js.toast.opening", "Opening your email app"));
-    });
-  }
 
   /* ---------- Quick jump palette (Ctrl K or /) ---------- */
   (function () {
