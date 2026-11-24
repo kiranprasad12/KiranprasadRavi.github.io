@@ -595,3 +595,9 @@ html, body { overflow-x: clip; }
 .lang-btn:focus-visible { outline: 3px solid var(--accent2); outline-offset: 2px; position: relative; z-index: 1; }
 .brand, .nav a, .jump-btn { white-space: nowrap; }
 @media (max-width: 1500px) and (min-width: 1041px) { .jump-btn .kbd, .jump-btn .lbl { display: none; } .nav { gap: 0; } .nav a { padding: 8px 10px; } }
+
+/* ---------- Animated background (background.js draws on this canvas) ---------- */
+#bg-canvas { position: fixed; inset: 0; z-index: -1; width: 100vw; height: 100vh; pointer-events: none; display: block; }
+@supports (height: 100dvh) { #bg-canvas { height: 100dvh; } }
+html:not(.js) #bg-canvas { display: none; }
+
