@@ -7,6 +7,7 @@ A static site (HTML, CSS and a little JavaScript). No build step, no frameworks.
 - `public/script.js` is the interactions (scroll drawing, filters, quick jump, GitHub repo list)
 - `public/i18n.js` holds the German text for the English/German switch
 - `public/background.js` draws the animated background (dots, lines and dials)
+- `public/effects.js` has the small desktop effects (card tilt, cursor ring, menu underline) and the keyword band speed
 - `public/fonts/` holds the self-hosted Barlow fonts (OFL license included)
 - `public/photo.jpg` is the portrait shown in the hero
 

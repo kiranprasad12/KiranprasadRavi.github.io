@@ -5,6 +5,13 @@
   "use strict";
   var DE = {
 "page.1": "Zum Inhalt springen",
+"marquee.1": "Nutzfahrzeuge",
+"marquee.2": "Hybrid- und Elektroantriebe",
+"marquee.3": "Energiemanagement",
+"marquee.4": "Simulation und Regelung",
+"marquee.5": "Reinforcement Learning",
+"marquee.6": "Eingebettete Systeme",
+"marquee.7": "ADAS",
 "site-header.1": "Kiran Prasad Ravi, Startseite",
 "site-header.4": "Hauptnavigation",
 "site-header.5": "Projekte",

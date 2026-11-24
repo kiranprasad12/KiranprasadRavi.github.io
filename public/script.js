@@ -51,8 +51,20 @@
     if (animate) setTimeout(function () { root.classList.remove("theme-fade"); }, 500);
   }
   setTheme(root.getAttribute("data-theme"), false, false);
+  // Where the browser supports it, the new theme spreads out from the pressed button.
+  function switchTheme(name, ev) {
+    if (!doc.startViewTransition || reduce || root.getAttribute("data-theme") === name) { setTheme(name, true, true); return; }
+    var x = ev && ev.clientX ? ev.clientX : window.innerWidth / 2;
+    var y = ev && ev.clientY ? ev.clientY : 0;
+    root.style.setProperty("--vt-x", x + "px");
+    root.style.setProperty("--vt-y", y + "px");
+    root.classList.add("vt");
+    var t = doc.startViewTransition(function () { setTheme(name, true, false); });
+    var done = function () { root.classList.remove("vt"); };
+    if (t && t.finished) t.finished.then(done, done); else done();
+  }
   $$("[data-theme-set]").forEach(function (b) {
-    b.addEventListener("click", function () { setTheme(b.getAttribute("data-theme-set"), true, true); });
+    b.addEventListener("click", function (e) { switchTheme(b.getAttribute("data-theme-set"), e); });
   });
 
   /* ---------- Mobile menu ---------- */

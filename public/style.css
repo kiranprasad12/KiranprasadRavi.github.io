@@ -635,3 +635,152 @@ html:not(.js) #bg-canvas { display: none; }
 .points li { position: relative; padding-left: 16px; font-size: .98rem; line-height: 1.5; }
 .points li::before { content: ""; position: absolute; left: 0; top: .72em; width: 8px; height: 2px; background: var(--cat, var(--accent)); }
 
+/* ==========================================================================
+   Motion layer. Everything here is switched off by reduced motion (html.reduce)
+   and only runs when JavaScript is on (html.js).
+   ========================================================================== */
+
+/* Background canvas fades in */
+.js:not(.reduce) #bg-canvas { animation: bgIn 2s ease .1s both; }
+@keyframes bgIn { from { opacity: 0; } to { opacity: 1; } }
+
+/* Hero: name words rise one after another, the frame settles, the photo is scanned */
+.js:not(.reduce) .hero h1 { animation: none; perspective: 800px; }
+.js:not(.reduce) .hero h1 .nm { animation: nameIn 1s var(--ease) both; transform-origin: 50% 100%; }
+.js:not(.reduce) .hero h1 .nm:nth-child(1) { animation-delay: .08s; }
+.js:not(.reduce) .hero h1 .nm:nth-child(2) { animation-delay: .22s; }
+.js:not(.reduce) .hero h1 .nm:nth-child(3) { animation-delay: .36s; }
+@keyframes nameIn { from { opacity: 0; transform: translateY(.55em) rotateX(-45deg); filter: blur(8px); } to { opacity: 1; transform: none; filter: blur(0); } }
+.js:not(.reduce) .sheet::before { animation: frameIn 1.1s var(--ease) both; }
+@keyframes frameIn { from { inset: 44px; opacity: 0; } to { inset: 6px; opacity: 1; } }
+.photo img { transform: scale(1.08) translateY(min(calc(var(--sy, 0) * .035px), 28px)); will-change: transform; }
+.js:not(.reduce) .photo img { animation: photoIn 1.3s var(--ease) .4s backwards; }
+@keyframes photoIn { from { clip-path: inset(0 0 100% 0); transform: scale(1.3); } to { clip-path: inset(0); transform: scale(1.08); } }
+.js:not(.reduce) .photo::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 40%; z-index: 2; pointer-events: none; opacity: 0;
+  background: linear-gradient(to bottom, transparent, color-mix(in srgb, var(--accent2) 34%, transparent) 90%, var(--accent2));
+  animation: scan 1.7s var(--ease) .55s both; }
+@keyframes scan { 0% { transform: translateY(-100%); opacity: 0; } 12% { opacity: 1; } 100% { transform: translateY(260%); opacity: 0; } }
+.js:not(.reduce) .photo::after { animation: bracketsIn 1s var(--ease) 1.1s backwards; }
+@keyframes bracketsIn { from { inset: 44px; opacity: 0; } to { inset: 10px; opacity: 1; } }
+.js:not(.reduce) .hero .btn-row .btn { animation: rise .6s var(--ease) backwards; }
+.js:not(.reduce) .hero .btn-row .btn:nth-child(1) { animation-delay: .7s; }
+.js:not(.reduce) .hero .btn-row .btn:nth-child(2) { animation-delay: .78s; }
+.js:not(.reduce) .hero .btn-row .btn:nth-child(3) { animation-delay: .86s; }
+.js:not(.reduce) .hero .btn-row .btn:nth-child(4) { animation-delay: .94s; }
+.js:not(.reduce) .hero .btn-row { animation: none; }
+
+/* Buttons: light sweep on hover, press on tap */
+.btn { position: relative; overflow: hidden; isolation: isolate; -webkit-tap-highlight-color: transparent; }
+.btn::after { content: ""; position: absolute; top: 0; bottom: 0; left: -50%; width: 35%; z-index: -1; pointer-events: none;
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--accent2) 30%, transparent), transparent);
+  transform: skewX(-20deg); transition: transform .8s var(--ease); }
+.btn-primary::after { background: linear-gradient(90deg, transparent, color-mix(in srgb, #fff 45%, transparent), transparent); }
+.btn:hover::after { transform: skewX(-20deg) translateX(560%); }
+.btn:active, .fbtn:active, .mode-btn:active, .chip:active, .lang-btn:active, .theme-btn:active { transform: scale(.96); }
+
+/* Cards: light that follows the pointer (desktop only, set up by effects.js) */
+@media (hover: hover) and (pointer: fine) {
+  .spot { position: relative; }
+  .spot::after { content: ""; position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity .35s;
+    background: radial-gradient(340px circle at var(--mx, 50%) var(--my, 50%), color-mix(in srgb, var(--accent2) 17%, transparent), transparent 65%); }
+  .spot:hover::after { opacity: 1; }
+  .js [data-reveal].tilting { transition: transform .22s ease-out, opacity .7s var(--ease), clip-path .9s var(--ease), border-color .25s, background .25s; transition-delay: 0s; will-change: transform; }
+}
+
+/* Lists and chips come in one after another */
+.js:not(.reduce) .glance.in > div { animation: rise .6s var(--ease) both; animation-delay: calc(var(--j, 0) * 90ms + 120ms); }
+.js:not(.reduce) .pillar.in .points li { animation: rise .6s var(--ease) both; }
+.js:not(.reduce) .pillar.in .points li:nth-child(1) { animation-delay: .25s; }
+.js:not(.reduce) .pillar.in .points li:nth-child(2) { animation-delay: .4s; }
+.js:not(.reduce) .pillar.in .tags { animation: rise .6s var(--ease) .55s both; }
+.js:not(.reduce) .checks li { opacity: 0; }
+.js:not(.reduce) .how.in .checks li { animation: rise .6s var(--ease) both; }
+.js:not(.reduce) .how.in .checks li:nth-child(1) { animation-delay: .1s; }
+.js:not(.reduce) .how.in .checks li:nth-child(2) { animation-delay: .25s; }
+.js:not(.reduce) .how.in .checks li:nth-child(3) { animation-delay: .4s; }
+.js:not(.reduce) .cloud.in .chip:not(.pop) { animation: chipIn .5s var(--ease) backwards; animation-delay: calc(var(--k, 0) * 24ms); }
+@keyframes chipIn { from { opacity: 0; transform: translateY(12px) scale(.92); } to { opacity: 1; transform: none; } }
+
+/* Timeline dots send out a ring when they switch on */
+.js:not(.reduce) .timeline li.on .dot { animation: ring 1.5s ease-out 1; }
+@keyframes ring { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 65%, transparent); } 100% { box-shadow: 0 0 0 16px transparent; } }
+
+/* Phone menu: links slide in one by one */
+@media (max-width: 1040px) {
+  .js:not(.reduce) .site-header.nav-open .nav a { animation: navIn .4s var(--ease) both; }
+  .js:not(.reduce) .site-header.nav-open .nav a:nth-child(1) { animation-delay: .04s; }
+  .js:not(.reduce) .site-header.nav-open .nav a:nth-child(2) { animation-delay: .09s; }
+  .js:not(.reduce) .site-header.nav-open .nav a:nth-child(3) { animation-delay: .14s; }
+  .js:not(.reduce) .site-header.nav-open .nav a:nth-child(4) { animation-delay: .19s; }
+  .js:not(.reduce) .site-header.nav-open .nav a:nth-child(5) { animation-delay: .24s; }
+  .js:not(.reduce) .site-header.nav-open .nav a:nth-child(6) { animation-delay: .29s; }
+}
+@keyframes navIn { from { opacity: 0; transform: translateX(-16px); } to { opacity: 1; transform: none; } }
+
+/* Theme switch: the new colours spread out from the button you pressed */
+html.vt::view-transition-old(root), html.vt::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
+html.vt::view-transition-new(root) { animation: vtReveal .75s var(--ease) both; }
+@keyframes vtReveal { from { clip-path: circle(0 at var(--vt-x, 50%) var(--vt-y, 0)); } to { clip-path: circle(150vmax at var(--vt-x, 50%) var(--vt-y, 0)); } }
+
+/* ==========================================================================
+   Motion layer, part 2: keyword band, rotating border, hero depth, cursor ring,
+   sliding menu underline, heading reveal, skill chip wave, link arrows, ripples.
+   ========================================================================== */
+
+/* Keyword band under the hero. It scrolls by itself and speeds up while you scroll. */
+.marquee { position: relative; margin-top: clamp(36px, 6vw, 72px); overflow: hidden; border-block: 1px solid var(--line); background: var(--surface);
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent); }
+.marquee-track { display: flex; width: max-content; will-change: transform; }
+.marquee-list { display: flex; flex: none; align-items: center; list-style: none; margin: 0; padding: 0; }
+.marquee-list li { display: flex; align-items: center; gap: 28px; padding: 16px 28px 16px 0; white-space: nowrap; font: 600 clamp(1.3rem, 2.6vw, 2rem)/1 var(--font-head); text-transform: uppercase; letter-spacing: .06em; color: var(--ink); }
+.marquee-list li::after { content: ""; flex: none; width: 9px; height: 9px; background: var(--accent); }
+.marquee-list li:nth-child(even) { color: transparent; -webkit-text-stroke: 1px var(--line-strong); }
+.js:not(.reduce) .marquee-track { animation: marquee 44s linear infinite; }
+@keyframes marquee { to { transform: translateX(-50%); } }
+
+/* A light runs around the border of the profile card */
+@property --beam { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
+.titleblock { position: relative; }
+.js:not(.reduce) .titleblock::before { content: ""; position: absolute; inset: -1px; padding: 1px; z-index: 3; pointer-events: none;
+  background: conic-gradient(from var(--beam), transparent 0 66%, color-mix(in srgb, var(--accent) 30%, transparent) 82%, var(--accent) 95%, transparent 100%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor; mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+  animation: beam 6s linear infinite; }
+@keyframes beam { to { --beam: 360deg; } }
+
+/* Hero depth: the card and the name move a little against each other (desktop mouse, set by effects.js) */
+.js:not(.reduce) .titleblock { animation: rise .8s var(--ease) .3s backwards; transform: perspective(1100px) rotateY(calc(var(--px, 0) * 5deg)) rotateX(calc(var(--py, 0) * -4deg)); }
+.js:not(.reduce) .hero h1 { transform: translate(calc(var(--px, 0) * -10px), calc(var(--py, 0) * -6px)); }
+
+/* Section headings: rise, sharpen and wipe in */
+.js:not(.reduce) [data-reveal="head"] h2 { transform: translateY(.45em); filter: blur(8px); transition: clip-path .9s var(--ease), transform .9s var(--ease), filter .9s var(--ease); }
+.js:not(.reduce) [data-reveal="head"].in h2 { transform: none; filter: blur(0); }
+
+/* Project links get a moving arrow */
+.proj .more::after { content: ""; display: inline-block; width: 18px; height: 14px; margin-left: 8px; vertical-align: -2px; background: currentColor; transition: transform .3s var(--ease);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 18 14'%3E%3Cpath d='M0 7h16M10 1l6 6-6 6' fill='none' stroke='%23000' stroke-width='2'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 18 14'%3E%3Cpath d='M0 7h16M10 1l6 6-6 6' fill='none' stroke='%23000' stroke-width='2'/%3E%3C/svg%3E") center / contain no-repeat; }
+.proj .more:hover::after { transform: translateX(5px); }
+
+/* Tap and click ripple on buttons */
+.fbtn, .mode-btn { position: relative; overflow: hidden; isolation: isolate; -webkit-tap-highlight-color: transparent; }
+.ripple { position: absolute; z-index: -1; border-radius: 50%; pointer-events: none; background: color-mix(in srgb, currentColor 24%, transparent); transform: scale(0); opacity: .9; animation: ripple .65s ease-out forwards; }
+@keyframes ripple { to { transform: scale(1); opacity: 0; } }
+
+/* Menu underline that slides between links (desktop, set up by effects.js) */
+@media (min-width: 1041px) {
+  .nav { position: relative; }
+  .nav.has-ind a::after { display: none; }
+  .nav-ind { position: absolute; left: 0; bottom: 2px; height: 2px; width: 0; background: var(--accent); opacity: 0; pointer-events: none;
+    transition: transform .5s var(--ease), width .5s var(--ease), opacity .3s; }
+}
+@media (max-width: 1040px) { .nav-ind { display: none; } }
+
+/* Cursor ring (desktop mouse only, added by effects.js) */
+.cursor-ring { position: fixed; left: 0; top: 0; z-index: 300; width: 36px; height: 36px; margin: -18px 0 0 -18px; border: 1.5px solid color-mix(in srgb, var(--accent2) 75%, transparent); border-radius: 50%; pointer-events: none; opacity: 0; will-change: transform;
+  transition: opacity .25s, width .25s var(--ease), height .25s var(--ease), margin .25s var(--ease), background .25s, border-color .25s; }
+.cursor-ring.on { opacity: 1; }
+.cursor-ring.is-link { width: 62px; height: 62px; margin: -31px 0 0 -31px; background: color-mix(in srgb, var(--accent) 14%, transparent); border-color: var(--accent); }
+.cursor-ring.is-down { width: 24px; height: 24px; margin: -12px 0 0 -12px; }
+.cursor-ring.is-text { opacity: 0; }
