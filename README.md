@@ -14,6 +14,8 @@ A static site (HTML, CSS and a little JavaScript). No build step, no frameworks.
   placing locators, a clamp and a point contact, the FEM check and the reward. The bending comes from a small beam
   model solved in the browser and is exaggerated; it is an illustration, not a result of the real project
 - `public/fonts/` holds the self-hosted Barlow fonts (OFL license included)
+- `public/Kiran_Prasad_Ravi_CV.pdf` (German) and `public/Kiran_Prasad_Ravi_CV_English.pdf` are the CV downloads,
+  the public versions of the master CVs, without address, phone, date of birth or residence permit
 - `public/og-image.jpg` is the picture shown when the link is shared (LinkedIn, WhatsApp, Slack)
 - `public/photo.jpg` is the portrait shown in the hero. `photo.avif` and `photo.webp` are smaller copies that
   most browsers load instead; if you change the photo, make new copies too
