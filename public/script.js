@@ -416,60 +416,7 @@
     }
   }
 
-  /* ---------- Fixture agent: step through one episode ---------- */
-  (function () {
-    var groups = $$(".rl-g"), btns = $$(".rl-step"), play = $("#rl-play"), gauge = $("#rl-gauge");
-    if (!groups.length || !btns.length) return;
-    var step = 3, timer = null, played = false;
-
-    function setStep(n) {
-      step = n;
-      groups.forEach(function (g) {
-        var on = n >= parseInt(g.getAttribute("data-from"), 10) && n <= parseInt(g.getAttribute("data-to"), 10);
-        g.classList.toggle("on", on);
-      });
-      btns.forEach(function (b) {
-        if (parseInt(b.getAttribute("data-step"), 10) === n) b.setAttribute("aria-current", "step");
-        else b.removeAttribute("aria-current");
-      });
-      if (gauge) {
-        if (n === 4) setTimeout(function () { gauge.classList.add("full"); }, 60);
-        else gauge.classList.remove("full");
-      }
-    }
-    function stop() {
-      clearInterval(timer);
-      timer = null;
-      if (play) play.textContent = T("js.rl.play", "Play episode");
-    }
-    function start() {
-      stop();
-      setStep(1);
-      if (play) play.textContent = T("js.rl.stop", "Stop");
-      timer = setInterval(function () {
-        if (step >= 5) { stop(); return; }
-        setStep(step + 1);
-      }, 1900);
-    }
-    btns.forEach(function (b) {
-      b.addEventListener("click", function () { stop(); setStep(parseInt(b.getAttribute("data-step"), 10)); });
-    });
-    if (play) play.addEventListener("click", function () { if (timer) stop(); else start(); });
-    setStep(3);
-    onLang(function () { if (play) play.textContent = timer ? T("js.rl.stop", "Stop") : T("js.rl.play", "Play episode"); });
-    if (play) play.textContent = T("js.rl.play", "Play episode");
-
-    // Watch the drawing itself (not the whole block), so it also starts on short screens.
-    var demo = $("#rl-svg") || $("#rl-demo");
-    if (demo && !reduce && "IntersectionObserver" in window) {
-      var io = new IntersectionObserver(function (entries) {
-        entries.forEach(function (e) {
-          if (e.isIntersecting && !played) { played = true; start(); io.disconnect(); }
-        });
-      }, { threshold: 0.55 });
-      io.observe(demo);
-    }
-  })();
+  /* ---------- Fixture design demo: see fixture.js ---------- */
 
   /* ---------- Endless animations wait while their section is out of view ---------- */
   // A blinking caret, flowing energy lines or a turning light keep the browser busy on every
