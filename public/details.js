@@ -4,7 +4,7 @@
      truck that drives along the progress line, headings that decode, dimension lines with
      arrowheads, drawing zones around the hero sheet, number roll-ups, a live local time
      in the footer, a redraw line when the language changes, a progress frame on "back to top".
-   - Desktop with a mouse: a CAD-style status bar, grips on cards, the name lit by the pointer.
+   - Desktop with a mouse: grips on cards, the name lit by the pointer.
    - "Reduce motion": only the still parts stay (zones, clock, progress frame).
    If this file fails, the page still works. */
 (function () {
@@ -19,7 +19,6 @@
   function loc() { return isDe() ? "de-DE" : "en-GB"; }
   function clamp(v, a, b) { return Math.min(b, Math.max(a, v)); }
   function num(v, d) { var s = v.toFixed(d); return isDe() ? s.replace(".", ",") : s; }
-  function pad2(n) { return (n < 10 ? "0" : "") + n; }
   function onLang(fn) { doc.addEventListener("kpr:lang", fn); }
   function debounce(fn, ms) { var t = 0; return function () { clearTimeout(t); t = setTimeout(fn, ms); }; }
 
@@ -29,16 +28,12 @@
   // window or the page changes size.
   var header = $("#site-header"), ruler = $("#ruler");
   var geo = { y: window.pageYOffset || 0, vw: window.innerWidth, vh: window.innerHeight, max: 1, hw: 0, rw: 0 };
-  var geoFns = [];
-  // Position in the page without transforms
-  function docTop(el) { var t = 0; while (el) { t += el.offsetTop; el = el.offsetParent; } return t; }
   function measure() {
     geo.y = window.pageYOffset || 0;
     geo.vw = window.innerWidth; geo.vh = window.innerHeight;
     geo.max = Math.max(1, root.scrollHeight - geo.vh);
     geo.hw = header ? header.clientWidth : geo.vw;
     geo.rw = ruler ? ruler.offsetWidth : 0;
-    for (var i = 0; i < geoFns.length; i++) geoFns[i]();
   }
   measure();
   window.addEventListener("scroll", function () { geo.y = window.pageYOffset || 0; }, { passive: true });
@@ -218,7 +213,6 @@
       clock.time = (hh === "24" ? "00" : hh) + ":" + mi + ":" + ss;
       clock.tz = tz;
       if (tbTime) tbTime.textContent = clock.time + " " + tz;
-      if (sb.time) { sb.time.textContent = clock.time; sb.tz.textContent = tz; }
     }
     setTimeout(clockTick, 1000 - (Date.now() % 1000) + 5);
   }
@@ -292,23 +286,6 @@
       "background:#ffbf3f;color:#1a1300;font-weight:700;padding:2px 5px", "");
   } catch (e) {}
 
-  /* ---------- Status bar (created here so the clock can use it) ---------- */
-  var sbar = null, sb = {};
-  if (fine && !reduce) {
-    sbar = doc.createElement("div");
-    sbar.className = "sbar";
-    sbar.setAttribute("aria-hidden", "true");
-    sbar.innerHTML =
-      '<span class="sb-led"></span>' +
-      '<span><b data-k="sheet">01/01</b><em data-k="sec"></em></span>' +
-      '<span><b class="sb-mode" data-k="mode" data-m="ready"></b><i>SOC</i><b data-k="soc">82</b><em>%</em><b data-k="v">00</b><em>km/h</em><em class="sb-lim">LIMIT</em></span>' +
-      '<span class="sb-sp"></span>' +
-      '<span><i>↕</i><b data-k="pct">0</b><em>%</em></span>' +
-      '<span><i>Kaiserslautern</i><b data-k="time">--:--:--</b><em data-k="tz"></em></span>';
-    $$("[data-k]", sbar).forEach(function (el) { sb[el.getAttribute("data-k")] = el; });
-    doc.body.appendChild(sbar);
-    root.classList.add("has-sbar");
-  }
   // Start the clock when the browser has a quiet moment: setting up the time zone takes a while on slow phones
   function clockStart() { clockInit(); clockTick(); }
   if (window.requestIdleCallback) requestIdleCallback(clockStart, { timeout: 1500 }); else setTimeout(clockStart, 400);
@@ -448,13 +425,6 @@
   // Speed is shown against a 90 km/h limit, like the speed limiter of a truck in the EU.
   var car = { x: -44, v: 0, a: 0, soc: 82, mode: "ready", hold: 0, odo: 0, atEnd: false, low: false };
   var carRaf = 0, carLast = 0, parked = !bootDone;
-  var MODE = {
-    ready: function () { return T("js.ems.ready", "READY"); },
-    ev: function () { return T("js.ems.ev", "EV"); },
-    engine: function () { return T("js.ems.engine", "ENGINE"); },
-    boost: function () { return T("js.ems.boost", "BOOST"); },
-    regen: function () { return T("js.ems.regen", "REGEN"); }
-  };
   // The middle of the truck sits on the end of the orange progress line. It never parks on top
   // of the side ruler (when the ruler is shown) and never leaves the right edge.
   function laneStart() { return geo.rw ? geo.rw + 6 : 0; }
@@ -481,15 +451,6 @@
       rig.soc.style.transform = "scaleX(" + (car.soc / 100).toFixed(3) + ")";
       rigEl.classList.toggle("is-regen", car.mode === "regen");
     }
-  }
-  function sbarCar(sp) {
-    if (!sbar) return;
-    var kmh = Math.round(sp * 90);
-    sb.v.textContent = pad2(kmh);
-    sb.soc.textContent = Math.round(car.soc);
-    sb.mode.textContent = MODE[car.mode]();
-    sb.mode.setAttribute("data-m", car.mode);
-    sbar.classList.toggle("is-lim", sp > 0.985);
   }
   function carTick(now) {
     carRaf = 0;
@@ -522,14 +483,12 @@
       rigEl.classList.remove("is-haz"); void rigEl.offsetWidth; rigEl.classList.add("is-haz");
     }
     if (!end) car.atEnd = false;
-    sbarCar(sp);
     if (Math.abs(tx - car.x) > 0.25 || Math.abs(v) > 0.6) carRaf = requestAnimationFrame(carTick);
     else {
       car.v = 0; car.a = 0; carLast = 0; car.hold = 0;
       rigEl.style.setProperty("--brake", "0");
       rigEl.style.setProperty("--wind", "0");
       ems(0, 0, 0, false);
-      sbarCar(0);
     }
   }
   function carKick() { if (!carRaf && rig) { carLast = 0; carRaf = requestAnimationFrame(carTick); } }
@@ -537,29 +496,7 @@
   // After the intro the truck drives in from the left edge
   afterBoot(function () { setTimeout(function () { parked = false; carKick(); }, 350); });
 
-  /* ---------- 11. CAD status bar: sheet, energy manager, time ---------- */
-  if (sbar) {
-    var secs = $$("[data-sec]"), secTop = [], sRaf2 = 0;
-    geoFns.push(function () { secTop = secs.map(docTop); });
-    var sbUpdate = function () {
-      sRaf2 = 0;
-      sb.pct.textContent = Math.round(scrollP() * 100);
-      var mid = geo.vh * 0.4, cur = 0;
-      for (var i = 0; i < secs.length; i++) if (secTop[i] - geo.y <= mid) cur = i;
-      if (secs.length) {
-        sb.sheet.textContent = pad2(cur + 1) + "/" + pad2(secs.length);
-        sb.sec.textContent = secs[cur].getAttribute("data-label") || "";
-      }
-    };
-    var sbKick = function () { if (!sRaf2) sRaf2 = requestAnimationFrame(sbUpdate); };
-    scrollFns.push(sbKick);
-    onLang(function () { setTimeout(function () { sbUpdate(); sbarCar(0); }, 0); });
-    measure();
-    sbUpdate();
-    sbarCar(0);
-  }
-
-  /* ---------- 12. Cards: grips in the corners when the mouse is over them (desktop) ---------- */
+  /* ---------- 11. Cards: grips in the corners when the mouse is over them (desktop) ---------- */
   if (fine) {
     $$(".proj, .pillar, .panel").forEach(function (card) {
       var g = doc.createElement("span");
@@ -571,7 +508,7 @@
     });
   }
 
-  /* ---------- 13. The name: a light passes over it, and on desktop it follows the pointer ---------- */
+  /* ---------- 12. The name: a light passes over it, and on desktop it follows the pointer ---------- */
   (function () {
     var hero = $("#home"), h1 = $(".hero h1");
     if (!hero || !h1) return;
@@ -594,7 +531,7 @@
     hero.addEventListener("pointerleave", function () { nms.forEach(function (n) { n.style.setProperty("--la", "0"); }); });
   })();
 
-  /* ---------- 14. Language switch: a line runs down the screen and the text is drawn again ---------- */
+  /* ---------- 13. Language switch: a line runs down the screen and the text is drawn again ---------- */
   onLang(function () {
     var line = doc.createElement("div");
     line.className = "relang-scan";

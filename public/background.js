@@ -380,7 +380,7 @@
   doc.addEventListener("click", function (e) {
     if (reduce || e.button) return;
     var t = e.target;
-    if (!t || !t.closest || t.closest("a, button, input, select, textarea, label, summary, [role='radio'], [role='dialog'], .chip, .drive-canvas, .rl-svg, .th-fig, .ruler, .boot, .sbar")) return;
+    if (!t || !t.closest || t.closest("a, button, input, select, textarea, label, summary, [role='radio'], [role='dialog'], .chip, .drive-canvas, .rl-svg, .th-fig, .ruler, .boot")) return;
     if (window.getSelection && String(window.getSelection())) return;
     waves.push({ x: e.clientX, y: e.clientY, age: 0 });
     if (waves.length > 4) waves.shift();

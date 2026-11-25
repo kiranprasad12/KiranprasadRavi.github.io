@@ -27,7 +27,7 @@
   // Asking for a position right after something on the page has moved makes the browser redo its
   // layout in the middle of a frame, which makes scrolling stutter on phones. So the scroll code
   // reads these stored numbers. They are measured again when the window or the page changes size.
-  var geo = { y: window.pageYOffset || 0, vw: window.innerWidth, vh: window.innerHeight, max: 1, hh: 64, fh: 0 };
+  var geo = { y: window.pageYOffset || 0, vw: window.innerWidth, vh: window.innerHeight, max: 1, hh: 64 };
   var geoFns = [];
   // Position in the page without transforms, so a card that is still sliding in does not count
   function docTop(el) { var t = 0; while (el) { t += el.offsetTop; el = el.offsetParent; } return t; }
@@ -36,8 +36,6 @@
     geo.vw = window.innerWidth; geo.vh = window.innerHeight;
     geo.max = Math.max(1, root.scrollHeight - geo.vh);
     geo.hh = headerH();
-    var sb = $(".sbar");
-    geo.fh = sb && sb.offsetHeight ? sb.offsetHeight : 0;
     for (var i = 0; i < geoFns.length; i++) geoFns[i]();
   }
   window.addEventListener("scroll", function () { geo.y = window.pageYOffset || 0; }, { passive: true });
@@ -324,7 +322,6 @@
     });
     setMode("electric");
 
-    function footH() { var sb = $(".sbar"); return sb && sb.offsetHeight ? sb.offsetHeight : 0; }
     var ds = { top: 0, h: 0, stageH: 0 };                  // the tall scroll area of the demo
     geoFns.push(function () { ds.top = docTop(driveScroll); ds.h = driveScroll.offsetHeight; ds.stageH = stage.offsetHeight; });
     // Pin the stage only when the whole demo fits on the screen. Otherwise it stays in the normal
@@ -333,7 +330,7 @@
       var vb = window.innerWidth <= 640 ? VB_TIGHT : VB_WIDE;
       truck.setAttribute("viewBox", vb.join(" "));
       if (reduce) { pin = false; driveSec.classList.remove("is-pin"); return; }
-      var avail = window.innerHeight - headerH() - footH();
+      var avail = window.innerHeight - headerH();
       var head = $(".drive-head", stage).offsetHeight, ui = $(".drive-ui", stage).offsetHeight;
       var drawH = canvas.clientWidth * vb[3] / vb[2];
       // the drawing may shrink to fit, but it should keep at least about 240 px (less on phones)
@@ -381,7 +378,7 @@
     window.drivePinnedNow = function () {
       if (!pin) return false;
       var top = ds.top - geo.y;
-      return top <= geo.hh + 1 && top + ds.h >= geo.vh - geo.fh - 2;
+      return top <= geo.hh + 1 && top + ds.h >= geo.vh - 2;
     };
     if ("IntersectionObserver" in window) {
       new IntersectionObserver(function (es) {
