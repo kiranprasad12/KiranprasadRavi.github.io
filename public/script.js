@@ -660,6 +660,11 @@
     var pal = $("#palette"), input = $("#pal-input"), list = $("#pal-list"), empty = $("#pal-empty"), openBtn = $("#jump-btn");
     if (!pal || !input || !list) return;
     var items = [], shown = [], sel = 0, lastFocus = null;
+    function download(href, name) {
+      var a = doc.createElement("a");
+      a.href = href; a.setAttribute("download", name);
+      doc.body.appendChild(a); a.click(); doc.body.removeChild(a);
+    }
 
     function buildItems() {
       items = secs.map(function (s) {
@@ -674,6 +679,8 @@
         { label: T("js.pal.li", "Open LinkedIn profile"), hint: T("js.pal.link", "Link"), run: function () { window.open("https://www.linkedin.com/in/kiran-prasad-ravi-096106244", "_blank", "noopener"); } },
         { label: T("js.pal.copy", "Copy email address"), hint: T("js.pal.action", "Action"), run: copyEmail },
         { label: T("js.pal.mail", "Write an email"), hint: T("js.pal.action", "Action"), run: function () { window.location.href = "mailto:" + EMAIL; } },
+        { label: T("js.pal.cven", "Download CV in English (PDF)"), hint: T("js.pal.action", "Action"), run: function () { download("Kiran_Prasad_Ravi_CV_English.pdf", "Kiran_Prasad_Ravi_CV_English.pdf"); } },
+        { label: T("js.pal.cvde", "Download CV in German (PDF)"), hint: T("js.pal.action", "Action"), run: function () { download("Kiran_Prasad_Ravi_CV.pdf", "Kiran_Prasad_Ravi_CV_German.pdf"); } },
         { label: T("js.pal.top", "Back to top"), hint: T("js.pal.action", "Action"), run: function () { window.scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" }); } }
       );
       // Other files can add actions here (details.js adds the wireframe view).

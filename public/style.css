@@ -208,6 +208,21 @@ button { font: inherit; color: inherit; }
 .btn-primary:hover { background: var(--accent); color: var(--on-accent); filter: brightness(1.1); }
 .btn[hidden] { display: none; }
 .btn-row { display: flex; flex-wrap: wrap; gap: 12px; }
+/* CV download: one control, two languages */
+.cv-dl { display: inline-flex; align-items: stretch; max-width: 100%; }
+.cv-dl-l { display: inline-flex; align-items: center; gap: 8px; padding: 0 14px; border: 1px solid var(--line-strong); background: var(--surface); color: var(--muted); font: 600 1rem var(--font-body); white-space: nowrap; }
+.cv-dl-l svg { flex: none; width: 17px; height: 17px; fill: none; stroke: var(--accent); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.cv-dl-l b { font-weight: 600; color: var(--ink); }
+.cv-dl-l small { font: 500 10.5px/1 var(--font-mono); letter-spacing: .06em; }
+.cv-dl .btn { margin-left: -1px; }
+.cv-dl .btn:hover, .cv-dl .btn:focus-visible { z-index: 1; }
+.cv-dl .btn-primary + .btn-primary { border-left-color: color-mix(in srgb, var(--on-accent) 30%, var(--accent)); }
+@media (max-width: 480px) {
+  .cv-dl { display: flex; width: 100%; }
+  .cv-dl-l { padding: 0 10px; }
+  .cv-dl-l small { display: none; }
+  .cv-dl .btn { flex: 1 1 0; justify-content: center; padding-inline: 10px; }
+}
 
 /* ---------- Hero ---------- */
 .hero { padding-top: calc(var(--header-h) + clamp(28px, 5vw, 64px)); }
