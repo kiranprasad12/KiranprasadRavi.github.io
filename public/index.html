@@ -119,7 +119,7 @@
 <div class="hero-text">
 <h1><span class="nm" data-i18n="home.1" data-i18n-html="1">Kiran</span><span class="nm" data-i18n="home.2" data-i18n-html="1">Prasad</span><span class="nm" data-i18n="home.3" data-i18n-html="1">Ravi</span></h1>
 <p class="typed">
-<span class="sr-only" data-i18n="home.4" data-i18n-html="1">I work on hybrid vehicle energy management, reinforcement learning for fixture design, embedded sensing and simulation.</span>
+<span class="sr-only" data-i18n="home.4" data-i18n-html="1">I work on hybrid vehicle energy management, automated FEM simulation with reinforcement learning, embedded sensing and data analysis.</span>
 <span aria-hidden="true"><span class="typed-pre" data-i18n="home.5" data-i18n-html="1">I work on </span><span class="typed-text" id="typed">hybrid vehicle energy management.</span><span class="caret"></span></span>
 </p>
 <p class="lead" data-i18n="home.7" data-i18n-html="1">
@@ -478,10 +478,10 @@
 </article>
 <article class="proj" data-cat="ml" data-reveal="rise" id="proj-rl" style="--i:1">
 <p class="kind" data-i18n="projects.13" data-i18n-html="1">Machine learning</p>
-<h3 data-i18n="projects.14" data-i18n-html="1">Fixture design with reinforcement learning</h3>
-<p data-i18n="projects.15" data-i18n-html="1">A PPO agent learns where to place locators and clamps so that a part moves as little as possible under load. Built at FBK in Python.</p>
-<p class="tags" data-i18n="projects.16" data-i18n-html="1">Python, PPO, Pynite</p>
-<a class="more" data-i18n="projects.17" data-i18n-html="1" href="#agent">See how it learns</a>
+<h3 data-i18n="projects.14" data-i18n-html="1">Automated fixture design with reinforcement learning</h3>
+<p data-i18n="projects.15" data-i18n-html="1">A Python pipeline turns a CAD part into a mesh and an FEM model and checks the deformation against a 0.2 mm target. A PPO agent learns where to place locators, clamps and point contacts. My student research assistant job at FBK.</p>
+<p class="tags" data-i18n="projects.16" data-i18n-html="1">Python, Gmsh, Pynite, PPO</p>
+<a class="more" data-i18n="projects.17" data-i18n-html="1" href="#agent">Watch one episode</a>
 </article>
 <article class="proj" data-cat="emb" data-reveal="rise" id="proj-thermal" style="--i:2">
 <p class="kind" data-i18n="projects.18" data-i18n-html="1">Embedded and sensors</p>
@@ -518,7 +518,7 @@
 <div class="about-top">
 <div class="about-intro" data-reveal="left">
 <p class="about-lead" data-i18n="about.2" data-i18n-html="1">Master's student in Commercial Vehicle Technology at RPTU Kaiserslautern-Landau, with a mechanical engineering background and project experience in simulation, machine learning and embedded sensing.</p>
-<p data-i18n="about.3" data-i18n-html="1">My background includes a B.E. in Mechanical Engineering from Anna University, Chennai, and an internship at Brakes India Private Limited. From May to July 2026 I worked as a student assistant at the Chair of Manufacturing Engineering and Operations Management (FBK) at RPTU, where I rebuilt and extended a reinforcement learning environment for automated fixture design.</p>
+<p data-i18n="about.3" data-i18n-html="1">My background includes a B.E. in Mechanical Engineering from Anna University, Chennai, and an internship at Brakes India Private Limited. From May to July 2026 I worked as a student research assistant at the Chair of Manufacturing Engineering and Operations Management (FBK) at RPTU, on a reinforcement learning environment that automates fixture design with FEM checks.</p>
 </div>
 <div class="langs" data-reveal="right">
 <h3 data-i18n="about.5" data-i18n-html="1">Languages</h3>
@@ -541,7 +541,7 @@
 </div>
 <dl class="glance" data-reveal="rise">
 <div style="--j:0"><dt data-i18n="about.30" data-i18n-html="1">Education</dt><dd><span data-i18n="about.31" data-i18n-html="1">M.Sc. Commercial Vehicle Technology, RPTU (in progress)</span><span data-i18n="about.32" data-i18n-html="1">B.E. Mechanical Engineering, Anna University</span></dd></div>
-<div style="--j:1"><dt data-i18n="about.33" data-i18n-html="1">Experience</dt><dd><span data-i18n="about.34" data-i18n-html="1">Student assistant, FBK, RPTU (May to July 2026)</span><span data-i18n="about.35" data-i18n-html="1">Internship, Brakes India Private Limited</span></dd></div>
+<div style="--j:1"><dt data-i18n="about.33" data-i18n-html="1">Experience</dt><dd><span data-i18n="about.34" data-i18n-html="1">Student research assistant, FBK, RPTU (May to July 2026)</span><span data-i18n="about.35" data-i18n-html="1">Internship, Brakes India Private Limited</span></dd></div>
 <div style="--j:2"><dt data-i18n="about.36" data-i18n-html="1">Core tools</dt><dd><span>Python, MATLAB, Simulink</span><span>Ansys Workbench, SolidWorks</span></dd></div>
 <div style="--j:3"><dt data-i18n="about.39" data-i18n-html="1">Availability</dt><dd><span data-i18n="about.40" data-i18n-html="1">Mandatory internship, up to 6 months</span><span data-i18n="about.41" data-i18n-html="1">Germany, open to relocating</span></dd></div>
 </dl>
@@ -556,12 +556,12 @@
 <p class="tags">MATLAB, Simulink, Dynamic programming</p>
 </article>
 <article class="pillar" data-reveal="rise" style="--i:1; --cat: var(--c-ml)">
-<h4 data-i18n="about.20" data-i18n-html="1">Machine learning for engineering design</h4>
+<h4 data-i18n="about.20" data-i18n-html="1">Machine learning and simulation automation</h4>
 <ul class="points">
-<li data-i18n="about.21" data-i18n-html="1">Rebuilt and extended a Python environment in which a PPO agent places locators and clamps on a workpiece mesh</li>
-<li data-i18n="about.42" data-i18n-html="1">Finite element evaluation with Pynite (target: displacement below 0.2 mm) and training on the university HPC cluster; the system was at an early training stage when my assignment ended</li>
+<li data-i18n="about.21" data-i18n-html="1">Python environment in which a PPO agent places locators, clamps and point contacts on a meshed CAD part</li>
+<li data-i18n="about.42" data-i18n-html="1">Automated FEM checks with Gmsh and Pynite (target: displacement below 0.2 mm), training on the university HPC cluster (SLURM) and reproducible test scripts</li>
 </ul>
-<p class="tags">Python, PPO, Pynite, SLURM</p>
+<p class="tags">Python, PPO, Gmsh, Pynite, SLURM</p>
 </article>
 <article class="pillar" data-reveal="rise" style="--i:2; --cat: var(--c-emb)">
 <h4 data-i18n="about.22" data-i18n-html="1">Embedded systems and sensing</h4>
@@ -627,13 +627,13 @@
 </li>
 <li>
 <span aria-hidden="true" class="dot"></span>
-<strong data-i18n="path.10" data-i18n-html="1">Student assistant</strong>
+<strong data-i18n="path.10" data-i18n-html="1">Student research assistant</strong>
 <span class="meta" data-i18n="path.11" data-i18n-html="1">FBK chair, RPTU, May to July 2026</span>
 <ul>
-<li data-i18n="path.12" data-i18n-html="1">Rebuilt an existing German fixture design codebase in English and extended it</li>
-<li data-i18n="path.13" data-i18n-html="1">Python environment where a PPO agent places locators and clamps on a workpiece</li>
-<li data-i18n="path.14" data-i18n-html="1">Finite element checks with Pynite, with a target of under 0.2 mm displacement</li>
-<li data-i18n="path.15" data-i18n-html="1">Training on the university HPC cluster, code managed in GitLab</li>
+<li data-i18n="path.12" data-i18n-html="1">Automated fixture design: CAD geometry, Gmsh mesh and an FEM model in Pynite, without manual steps</li>
+<li data-i18n="path.13" data-i18n-html="1">PPO agent (Stable-Baselines3, Gymnasium) places locators, clamps and point contacts; target: displacement below 0.2 mm</li>
+<li data-i18n="path.14" data-i18n-html="1">Reproducible test scripts for structured clamping-force test cases</li>
+<li data-i18n="path.15" data-i18n-html="1">Training on the university HPC cluster (SLURM), code managed in GitLab</li>
 </ul>
 </li>
 </ol>

@@ -106,9 +106,9 @@
     if (!el) return;
     var EN = [
       "hybrid vehicle energy management.",
+      "automated CAD-to-FEM simulation.",
       "reinforcement learning for fixture design.",
-      "embedded sensing with an ESP32.",
-      "simulation, control and data."
+      "embedded sensing with an ESP32."
     ];
     var phrases = T("js.phrases", EN);
     var pi = 0, ci = phrases[0].length, deleting = true;
