@@ -15,11 +15,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Get the code
         uses: actions/checkout@v4
@@ -32,6 +29,26 @@ jobs:
         with:
           path: public
 
+  # Publishing runs in its own job. Right after the upload, GitHub sometimes does not list the new
+  # artifact yet, and the publish step stops with "No artifacts named github-pages were found"
+  # (actions/deploy-pages issue 451). This job starts later, and it tries once more after a wait.
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url || steps.again.outputs.page_url }}
+    steps:
       - name: Publish
         id: deployment
+        continue-on-error: true
+        uses: actions/deploy-pages@v4
+
+      - name: Wait before the second try
+        if: steps.deployment.outcome == 'failure'
+        run: sleep 30
+
+      - name: Publish (second try)
+        id: again
+        if: steps.deployment.outcome == 'failure'
         uses: actions/deploy-pages@v4
