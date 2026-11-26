@@ -280,20 +280,16 @@
 <div class="wrap result">
 <div data-reveal="left">
 <p class="big"><span data-count="35">35</span><small>%</small></p>
-<p class="cap" data-i18n="drive.18" data-i18n-html="1">less fuel than the same car without electric drive, in simulation (average of FTP-75 and NEDC).</p>
+<p class="cap" data-i18n="drive.18" data-i18n-html="1">less fuel than the same car without electric drive. This is the dynamic-programming optimum with the drive cycle known in advance, in simulation (average of FTP-75 and NEDC).</p>
 </div>
 <div data-reveal="right">
 <h3 data-i18n="drive.19" data-i18n-html="1">Energy management for a hybrid vehicle</h3>
-<p data-i18n="drive.20" data-i18n-html="1">
-            I built an energy management strategy based on dynamic programming in
-            MATLAB and Simulink. It decides when the engine and the electric motor
-            should drive the vehicle. I checked it with software-in-the-loop (SiL) testing.
-          </p>
+<p data-i18n="drive.20" data-i18n-html="1">In a seminar group project we computed the fuel-optimal energy management of a 48 V mild hybrid with dynamic programming in MATLAB and Simulink. It decides every second how the torque is split between the engine and the electric motor. Because the drive cycle is known in advance, the result is an offline benchmark: the best that is possible, against which real-time strategies are measured. The battery state-of-charge model was checked with software-in-the-loop (SiL) testing.</p>
 <div class="bars" data-bars="">
-<div class="bar-row"><span class="bar-name" data-i18n="drive.21" data-i18n-html="1">Baseline</span><span class="track"><i class="base" style="--w:100%; --i:0"></i></span><span class="bar-val">4.8</span></div>
-<div class="bar-row"><span class="bar-name" data-i18n="drive.22" data-i18n-html="1">My strategy</span><span class="track"><i style="--w:64.6%; --i:1"></i></span><span class="bar-val">3.1</span></div>
+<div class="bar-row"><span class="bar-name" data-i18n="drive.21" data-i18n-html="1">Engine only</span><span class="track"><i class="base" style="--w:100%; --i:0"></i></span><span class="bar-val">4.8</span></div>
+<div class="bar-row"><span class="bar-name" data-i18n="drive.22" data-i18n-html="1">DP optimum</span><span class="track"><i style="--w:64.6%; --i:1"></i></span><span class="bar-val">3.1</span></div>
 </div>
-<p class="tags" data-i18n="drive.23" data-i18n-html="1">Fuel consumption in l/100 km, average of the FTP-75 and NEDC cycles. Tools: MATLAB, Simulink, dynamic programming.</p>
+<p class="tags" data-i18n="drive.23" data-i18n-html="1">Fuel consumption in l/100 km, average of the FTP-75 and NEDC cycles, in simulation. Tools: MATLAB, Simulink, dynamic programming.</p>
 </div>
 </div>
 </section>
@@ -472,7 +468,7 @@
 <article class="proj" data-cat="sim" data-reveal="rise" id="proj-hybrid" style="--i:0">
 <p class="kind" data-i18n="projects.8" data-i18n-html="1">Simulation</p>
 <h3 data-i18n="projects.9" data-i18n-html="1">Energy management for a hybrid vehicle</h3>
-<p data-i18n="projects.10" data-i18n-html="1">I built an energy management strategy based on dynamic programming in MATLAB and Simulink. In simulation it reduced fuel consumption by about 35%. I checked it with software-in-the-loop (SiL) testing.</p>
+<p data-i18n="projects.10" data-i18n-html="1">Seminar group project: the fuel-optimal energy management of a 48 V mild hybrid, computed with dynamic programming in MATLAB and Simulink. As an offline benchmark with the drive cycle known in advance, it needs about 35% less fuel than the same car without electric drive (simulation). The battery state-of-charge model was checked with software-in-the-loop (SiL) testing.</p>
 <p class="tags" data-i18n="projects.11" data-i18n-html="1">MATLAB, Simulink, Dynamic programming</p>
 <a class="more" data-i18n="projects.12" data-i18n-html="1" href="#drive">See the interactive demo</a>
 </article>
@@ -550,7 +546,7 @@
 <article class="pillar" data-reveal="rise" style="--i:0; --cat: var(--c-sim)">
 <h4 data-i18n="about.17" data-i18n-html="1">Simulation and control</h4>
 <ul class="points">
-<li data-i18n="about.18" data-i18n-html="1">Energy management strategy for a hybrid vehicle, based on dynamic programming (MATLAB, Simulink)</li>
+<li data-i18n="about.18" data-i18n-html="1">Energy management for a hybrid vehicle: dynamic-programming benchmark (MATLAB, Simulink)</li>
 <li data-i18n="about.19" data-i18n-html="1">Evaluated with software-in-the-loop (SiL) testing; lower fuel consumption in simulation over the FTP-75 and NEDC cycles</li>
 </ul>
 <p class="tags">MATLAB, Simulink, Dynamic programming</p>
