@@ -313,6 +313,7 @@
               a time. After each step, the FEM model checks how far the part deforms under load. The target
               is a maximum displacement below 0.2 mm, and the smaller the deformation, the higher the reward.
             </p>
+<p data-i18n="agent.27" data-i18n-html="1">I added point contacts as a new element and limited the placements to the allowed element within 5 mm of given reference points. For the test part (1,995 surface nodes, five element types) this cuts the options from 9,975 to 4. One FEM check of that part takes about 14 seconds.</p>
 <p data-i18n="agent.4" data-i18n-html="1">
               I trained the agent on the university HPC cluster with SLURM, wrote reproducible test scripts
               for structured clamping-force test cases and managed the code in GitLab.
@@ -475,7 +476,7 @@
 <article class="proj" data-cat="ml" data-reveal="rise" id="proj-rl" style="--i:1">
 <p class="kind" data-i18n="projects.13" data-i18n-html="1">Machine learning</p>
 <h3 data-i18n="projects.14" data-i18n-html="1">Automated fixture design with reinforcement learning</h3>
-<p data-i18n="projects.15" data-i18n-html="1">A Python pipeline turns a CAD part into a mesh and an FEM model and checks the deformation against a 0.2 mm target. A PPO agent learns where to place locators, clamps and point contacts. My student research assistant job at FBK.</p>
+<p data-i18n="projects.15" data-i18n-html="1">A Python pipeline turns a CAD part into a mesh and an FEM model and checks the deformation against a 0.2 mm target, about 14 s per check. A PPO agent is set up to choose where to place locators, clamps and point contacts. My student research assistant job at FBK.</p>
 <p class="tags" data-i18n="projects.16" data-i18n-html="1">Python, Gmsh, Pynite, PPO</p>
 <a class="more" data-i18n="projects.17" data-i18n-html="1" href="#agent">Watch one episode</a>
 </article>
